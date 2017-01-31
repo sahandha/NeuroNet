@@ -4,51 +4,25 @@ import warnings
 import numpy as np
 from GeneralModel import *
 
-class Neuron:
-    def __init__(self, ID, synapses=[], time=0, a=0.7, b=0.8, tau=0.8, I=0.5):
+class Neuron(GeneralModel):
+    def __init__(self, ID, synapses=[], tstart=0, tend=200, dt=0.1, **params):
+        GeneralModel.__init__(self, Name="Neuron {}".format(ID), tstart=tstart, tend=tend, dt=dt,**params)
         self._ID       = ID
-        self._Time     = time
-        self._Input    = I
         self._V        = 0
         self._w        = 0
-        self._a        = a
-        self._b        = b
-        self._tau      = tau
+        self.Initialize([self._V,self._w])
         self._Synapses = synapses
 
-        self._GM = GeneralModel(Name="Neuron_{}".format(self._ID), tstart=self._Time, tend=50, dt=0.01)
-        self._GM.Initialize([self._V,self._w])
-        self._GM.SetFlow(self.Flow_FHN)
-
-    def Flow_FHN(self, t, x, params):
-        V, w = x[0], x[1]
-        dV = V - V**3/3 - w - self._Input
-        dw = 1/self._tau*(V + self._a - self._b*w)
-        return np.array([dV, dw])
-
     def Flow(self, t, x, params):
+        I   = params["I"]
+        a   = params["a"]
+        b   = params["b"]
+        tau = params["tau"]
 
-        if self._State == "Action":
-            if self._V >= min:
-                dV = 5*t
-                dw = 0
-            if self._V >= self._Threshold:
-                dV = 10*t
-            if self._V >= max:
-                dv = -10*t
-                self._state = "Relaxation"
+        V, w = x[0], x[1]
 
-        elif self._State == "Relaxation":
-            if self._V < min:
-                dV = 5*t
-                dw = 0
-                if self._V >= self._Threshold:
-                    dV = 10*t
-                if self._V >= max:
-                    dv = -10*t
-                    self._state = "Relaxation"
-
-
+        dV = V - V**3/3 - w + I
+        dw = (V + a - b*w)/tau
 
         return np.array([dV, dw])
 
@@ -56,8 +30,8 @@ class Neuron:
         for s in self.Synapses:
             s.ParentNeuron._w + s._ChildNeuron._w
 
-    def Update(self):
-        self._GM.UpdateRK()
+    def Update(self,i):
+        self._GM.UpdateRK(i)
         self._Time = self._GM._t
         self._V = self._GM._x[0]
         self._w = self._GM._x[1]
@@ -74,28 +48,24 @@ class Synapse:
         self._ChildNeuron = downstream
 
 class Brain:
-    def __init__(self, neurons=[], dt = 0.01, tend=50):
+    def __init__(self, neurons=[], dt = 0.1, tend=200):
         self._Neurons = neurons
         self._dt      = dt
         self._Tend    = tend
+        self._TLen    = int(tend/dt)
 
         if len(self._Neurons)==0:
-            self._Neurons.append(Neuron(1))
+            self._Neurons.append(Neuron(1,a=0.8,b=0.7,tau=12.5,I=0.5))
 
     def Simulate(self):
-        for i in np.arange(0,10,0.1):
-            self.Update()
+        for i in range(self._TLen):
+            self.Update(i)
 
-    def Update(self):
+    def Update(self,i):
         for n in self._Neurons:
-            n.Update()
-            print("Neuron {}".format(n._ID))
-            print("Voltage: {}".format(n._V))
-            print("Current: {}".format(n._w))
-            print("========================")
+            n.UpdateRK(i)
 
 
 if __name__ == '__main__':
     b = Brain()
     b.Simulate()
-    print(b._Neurons[0])

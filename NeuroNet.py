@@ -5,7 +5,7 @@ import numpy as np
 from GeneralModel import *
 
 class Neuron:
-    def __init__(self, ID, synapses=[], time=0, a=0.7, b=0.8, tau=0.8, I=0):
+    def __init__(self, ID, synapses=[], time=0, a=0.7, b=0.8, tau=0.8, I=0.5):
         self._ID       = ID
         self._Time     = time
         self._Input    = I
@@ -17,7 +17,7 @@ class Neuron:
         self._Synapses = synapses
 
         self._GM = GeneralModel(Name="Neuron_{}".format(self._ID), tstart=self._Time, tend=50, dt=0.01)
-        self._GM.Initialize([1,0])
+        self._GM.Initialize([self._V,self._w])
         self._GM.SetFlow(self.Flow_FHN)
 
     def Flow_FHN(self, t, x, params):
@@ -84,8 +84,11 @@ class Brain:
 
     def Simulate(self):
         for i in np.arange(0,10,0.1):
-            for n in self._Neurons:
-                n.Update()
+            self.Update()
+
+    def Update(self):
+        for n in self._Neurons:
+            n.Update()
             print("Neuron {}".format(n._ID))
             print("Voltage: {}".format(n._V))
             print("Current: {}".format(n._w))
@@ -95,3 +98,4 @@ class Brain:
 if __name__ == '__main__':
     b = Brain()
     b.Simulate()
+    print(b._Neurons[0])

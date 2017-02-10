@@ -1,4 +1,5 @@
 #! python3
+import random
 from GeneralModel import *
 class Neuron(GeneralModel):
     def __init__(self, ID, synapses=[], tstart=0, tend=200, dt=0.1, **params):
@@ -12,6 +13,44 @@ class Neuron(GeneralModel):
         self._II       = np.zeros_like(self._Time) #important it comes afeter initialization.
         self._Models["FittzHuge-Nagamo"] = self.FHNFlow
         self._Models["Simple-Ionic"]     = self.SIFlow
+        self.PlaceNeuron()
+
+    def PlaceNeuron(self):
+        x = random.randrange(0,80)
+        y = random.randrange(0,80)
+        if x<10 and y<10:
+            if x>y:
+                self._x = x+10
+                self._y = y
+            else:
+                self._x = x
+                self._y = y + 10
+        elif x>70 and y<10:
+            if y<-x+80:
+                self._x = x - 10
+                self._y = y
+            else:
+                self._x = x
+                self._y = y + 10
+        elif x<10 and y>70:
+            if y>-x+80:
+                self._x = x + 10
+                self._y = y
+            else:
+                self._x = x
+                self._y = y - 10
+        elif x>70 and y>70:
+            if y>x:
+                self._x = x - 10
+                self._y = y
+            else:
+                self._x = x
+                self._y = y - 10
+        else:
+            self._x = x
+            self._y = y
+
+        self._cell = (int(np.floor(self._x/10)),int(np.floor(self._y/10)))
 
     def setInput(self, i):
         self._Input = i
@@ -36,8 +75,8 @@ class Neuron(GeneralModel):
         self.StoreInputHistory(i)
         self.UpdateSynapses()
         self.UpdateRK(i)
-        self._V = self._x[0]
-        self._w = self._x[1]
+        self._V = self._X[0]
+        self._w = self._X[1]
 
     def StoreInputHistory(self,i):
         self._II[i] = self._Input
@@ -81,13 +120,9 @@ class Neuron(GeneralModel):
         a   = params["a"]
         b   = params["b"]
         tau = params["tau"]
-        #wsign = np.sign(x[1])
-        #absw  = abs(x[1])
-        #V, w = x[0], wsign*min(absw,2)
+
         V, w = x[0], x[1]
-        #insign = np.sign(self._Input)
-        #absin  = abs(self._Input)
-        #self._Input = insign*min(absin,2)
+
         dV = V - V**3/3 - w + self._Input
         dw = (V + a - b*w)/tau
         return np.array([dV, dw])

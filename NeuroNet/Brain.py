@@ -1,5 +1,4 @@
 import networkx as nx
-import random
 from NeuroNet.Neuron import *
 from NeuroNet.Synapse import *
 
@@ -8,27 +7,35 @@ class Brain:
         self._Neurons      = neurons
         self._Synapses     = {}
         self._SynapseCount = 0
+        self._SynapseHistory = {}
         self._t            = 0
         self._dt           = dt
         self._Tend         = tend
         self._TLen         = int(tend/dt)
-        self.SetSynpaseProbability()
         self.InitializeNetwork()
         if len(self._Neurons)==0:
             self._Neurons.append(Neuron(1,a=0.8,b=0.7,tau=12.5,I=0.5))
+        self.ComputeSynapseProbability()
 
+    def Distance2(self, a, b):
+        return sum((a - b)**2)
 
-    def InitializeNetwork(self):
-        self._Network      = nx.DiGraph()
-        self._Network.add_nodes_from(self._Neurons)
-        self._EdgeLabels   = {}
-        self._NodeLabels   = {}
-        for n in self._Neurons:
-            self._NodeLabels[n]=n._ID
+    def ComputeSynapseProbability(self):
+        probabilityMatrix = {}
+        for ii in range(len(self._Neurons)):
+            n1 = self._Neurons[ii]
+            for jj in range(ii,len(self._Neurons)):
+                n2 = self._Neurons[jj]
+                if ii == jj:
+                    d = 0
+                else:
+                    d = self.Distance2(np.array([n1._x,n1._y]), np.array([n2._x,n2._y]))
+                probabilityMatrix[(n1,n2)] = np.exp(-d/50)
+                probabilityMatrix[(n2,n1)] = np.exp(-d/50)
+        self._SynapseProbability = probabilityMatrix
 
-
-    def SetSynpaseProbability(self, chance=True, likelyhood=1000):
-        self._prob = likelyhood*[False]+[chance]
+    def SynapseQ(self,probability):
+        return random.random() < probability
 
     def Simulate(self):
         for id, s in self._Synapses.items():
@@ -44,17 +51,25 @@ class Brain:
             n.Update(i)
 
     def SynapticActivity(self,neuron):
-        if random.choice(self._prob):
-            dneuron = random.choice(self._Neurons)
-            if neuron._ID != dneuron._ID:
-                self._SynapseCount += 1
-                s = Synapse(self._SynapseCount,neuron,dneuron)
-                #print('A synapse just formed between Neuron {} and Neuron {} at time = {:2.2f}s.'.format(neuron._ID,dneuron._ID,self._t))
-                neuron._Synapses.append(s)
-                #dneuron._Synapses[self._SynapseCount]="In"
-                self._Synapses[self._SynapseCount]=s
-                self.AddEdge(neuron,dneuron)
 
+        for n in self._Neurons:
+            prob = self._SynapseProbability[(neuron,n)]
+            if self.SynapseQ(prob) and (neuron._ID!=n._ID):
+                self._SynapseCount += 1
+                s = Synapse(self._SynapseCount,neuron,n)
+                neuron._Synapses.append(s)
+                self._Synapses[self._SynapseCount]=s
+                self.AddEdge(neuron,n)
+
+
+    def InitializeNetwork(self):
+        self._Network      = nx.DiGraph()
+        #self._Network.add_nodes_from([(n,{pos:(n._x,n._y)}) for n in self._Neurons])
+        self._EdgeLabels   = {}
+        self._NodeLabels   = {}
+        for n in self._Neurons:
+            self._Network.add_node(n,pos=(n._x,n._y))
+            self._NodeLabels[n]=n._ID
 
     def AddEdge(self,n1,n2):
         self._Network.add_edge(n1, n2)
@@ -62,7 +77,8 @@ class Brain:
 
     def DrawNetwork(self):
         warnings.filterwarnings("ignore")
-        pos = nx.circular_layout(self._Network)
+        #pos = nx.circular_layout(self._Network)
+        pos = nx.get_node_attributes(self._Network,'pos')
         nx.draw(self._Network, pos)
         nx.draw_networkx_nodes(self._Network, pos, node_color='#8899FF')
         nx.draw_networkx_labels(self._Network, pos, labels=self._NodeLabels,font_color=[1,1,1],font_family='Times')

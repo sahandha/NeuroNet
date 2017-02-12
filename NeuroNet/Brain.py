@@ -6,7 +6,6 @@ import matplotlib.patches as patches
 class Brain:
     def __init__(self, neurons=[], dt = 0.1, tend=200):
         self._Neurons      = neurons
-        self._Synapses     = {}
         self._SynapseCount = 0
         self._t            = 0
         self._dt           = dt
@@ -38,9 +37,6 @@ class Brain:
         return random.random() < probability
 
     def Simulate(self):
-        for id, s in self._Synapses.items():
-            self.AddEdge(s._ParentNeuron,s._ChildNeuron)
-
         for i in range(self._TLen):
             self.Update(i)
 
@@ -55,11 +51,9 @@ class Brain:
         for n in self._Neurons:
             prob = self._SynapseProbability[(neuron,n)]
             if self.SynapseQ(prob) and (neuron._ID!=n._ID):
-                if len(neuron._Synapses)<11:
+                if len(neuron._SynapsedNeurons)<10:
+                    neuron.AddSynapse(n)
                     self._SynapseCount += 1
-                    s = Synapse(self._SynapseCount,neuron,n)
-                    neuron._Synapses.append(s)
-                    self._Synapses[self._SynapseCount]=s
                     self.AddEdge(neuron,n)
 
 

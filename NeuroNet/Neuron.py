@@ -7,15 +7,21 @@ class Neuron(GeneralModel):
         self._ID    = ID
         self._V     = 0
         self._w     = 0
-        self._Input = params["I"]
+        self._Input = 0
         self.Initialize([self._V,self._w])
         self._Synapses = synapses
         self._II       = np.zeros_like(self._Time) #important it comes afeter initialization.
-        self._Models = {}  # remove SIR, Vander-pol and other models. 
+        self._Models = {}  # remove SIR, Vander-pol and other models.
         self._Models["FittzHuge-Nagamo"] = self.FHNFlow
         self._Models["Simple-Ionic"]     = self.SIFlow
         self.PlaceNeuron()
+        self._SynapsedNeurons = []
+        self._SynapseCount = 0
 
+    def AddSynapse(self,n):
+        self._SynapsedNeurons.append(n)
+        self._SynapseCount += 1
+        
     def AvailableModels(self):
         print(list(self._Models.keys()))
 
@@ -56,8 +62,8 @@ class Neuron(GeneralModel):
         self._w = w
 
     def UpdateSynapses(self):
-        for s in self._Synapses:
-            s.Update()
+        for n in self._SynapsedNeurons:
+            n.setInput(0.1*self.getV())
 
     def Update(self,i):
         self.StoreInputHistory(i)
@@ -68,7 +74,6 @@ class Neuron(GeneralModel):
 
     def StoreInputHistory(self,i):
         self._II[i] = self._Input
-
 
 
     #Coupled Inhibitory Oscillation Model
@@ -111,6 +116,6 @@ class Neuron(GeneralModel):
 
         V, w = x[0], x[1]
 
-        dV = V - V**3/3 - w + self._Input
+        dV = V - V**3/3 - w + I + self._Input
         dw = (V + a - b*w)/tau
         return np.array([dV, dw])

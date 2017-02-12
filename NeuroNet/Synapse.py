@@ -11,4 +11,4 @@ class Synapse:
         self._ChildNeuron = downstream
 
     def Update(self):
-        self._ChildNeuron.setInput(self._SynapticStrength*self._ParentNeuron.getV())
+        self._ChildNeuron.setInput(self._SynapticStrength*self._ParentNeuron.getW())

@@ -11,46 +11,34 @@ class Neuron(GeneralModel):
         self.Initialize([self._V,self._w])
         self._Synapses = synapses
         self._II       = np.zeros_like(self._Time) #important it comes afeter initialization.
+        self._Models = {}  # remove SIR, Vander-pol and other models. 
         self._Models["FittzHuge-Nagamo"] = self.FHNFlow
         self._Models["Simple-Ionic"]     = self.SIFlow
         self.PlaceNeuron()
 
+    def AvailableModels(self):
+        print(list(self._Models.keys()))
+
     def PlaceNeuron(self):
         x = random.randrange(0,80)
         y = random.randrange(0,80)
-        if x<10 and y<10:
-            if x>y:
-                self._x = x+10
-                self._y = y
-            else:
-                self._x = x
-                self._y = y + 10
-        elif x>70 and y<10:
-            if y<-x+80:
-                self._x = x - 10
-                self._y = y
-            else:
-                self._x = x
-                self._y = y + 10
-        elif x<10 and y>70:
-            if y>-x+80:
-                self._x = x + 10
-                self._y = y
-            else:
-                self._x = x
-                self._y = y - 10
-        elif x>70 and y>70:
-            if y>x:
-                self._x = x - 10
-                self._y = y
-            else:
-                self._x = x
-                self._y = y - 10
+        if x<=10 and y<=10:
+            self._x = x + random.randrange(10,60)
+            self._y = y + random.randrange(10,60)
+        elif x>=70 and y<=10:
+            self._x = x - random.randrange(10,60)
+            self._y = y + random.randrange(10,60)
+        elif x<=10 and y>=70:
+            self._x = x + random.randrange(10,60)
+            self._y = y - random.randrange(10,60)
+        elif x>=70 and y>=70:
+            self._x = x - random.randrange(10,60)
+            self._y = y - random.randrange(10,60)
         else:
             self._x = x
             self._y = y
 
-        self._cell = (int(np.floor(self._x/10)),int(np.floor(self._y/10)))
+        self._Cell = (int(np.floor(self._x/10)),int(np.floor(self._y/10)))
 
     def setInput(self, i):
         self._Input = i

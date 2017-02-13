@@ -66,7 +66,7 @@ class Brain:
         for n in self._Neurons:
             prob = self._SynapseProbability[(neuron,n)]
             if self.SynapseQ(prob) and (neuron._ID!=n._ID):
-                if len(neuron._SynapsedNeurons)<10:
+                if len(neuron._SynapsedNeurons)<20:
                     neuron.AddSynapse(n)
                     self._SynapseCount += 1
                     self.AddEdge(neuron,n)
@@ -85,9 +85,9 @@ class Brain:
     def AddEdge(self,n1,n2):
         edgeData = self._Network.get_edge_data(n1,n2,default=0)
         if edgeData==0:
-            self._Network.add_edge(n1, n2, weight=0.1)
+            self._Network.add_edge(n1, n2, weight=0.2)
         else:
-            self._Network.add_edge(n1, n2,weight=edgeData['weight']+0.1)
+            self._Network.add_edge(n1, n2,weight=edgeData['weight']+0.2)
 
         self._EdgeLabels[(n1,n2)]='{:2.1f}'.format(self._t)
 

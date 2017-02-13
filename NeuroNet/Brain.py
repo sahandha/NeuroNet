@@ -1,9 +1,11 @@
+#! python3
 import networkx as nx
 from NeuroNet.Neuron import *
-from NeuroNet.Synapse import *
 import matplotlib.patches as patches
+from tqdm import tnrange, tqdm_notebook, tqdm
 
 class Brain:
+
     def __init__(self, neurons=[], dt = 0.1, tend=200):
         self._Neurons      = neurons
         self._SynapseCount = 0
@@ -29,15 +31,16 @@ class Brain:
                     d = 0
                 else:
                     d = self.Distance2(np.array([n1._x,n1._y]), np.array([n2._x,n2._y]))
-                probabilityMatrix[(n1,n2)] = np.exp(-d/200)
-                probabilityMatrix[(n2,n1)] = np.exp(-d/200)
+                probabilityMatrix[(n1,n2)] = np.exp(-d/100)
+                probabilityMatrix[(n2,n1)] = np.exp(-d/100)
         self._SynapseProbability = probabilityMatrix
 
     def SynapseQ(self,probability):
         return random.random() < probability
 
     def Simulate(self):
-        for i in range(self._TLen):
+        for i in tnrange(self._TLen,desc='Percentage of completion'):
+        #for i in tqdm(range(self._TLen)):
             self.Update(i)
 
     def Update(self,i):
@@ -91,3 +94,24 @@ class Brain:
         ax.add_patch(patches.Rectangle((10, 10),60,60,facecolor=[0.1,0.1,0.6],alpha=0.2))
 
         plt.show()
+
+
+if __name__ == "__main__":
+    tend = 400
+    dt   = 0.1
+
+    numNeurons = 50
+    displaynum = 10
+    neurons = []
+
+    for i in range(numNeurons):
+        if i==0:
+            I=1
+        else:
+            I=0
+        n = Neuron(i,dt=dt,tend=tend,a=0.8,b=0.7,tau=12.5,I=I)
+        n.SetFlow(n.FHNFlow)
+        neurons.append(n)
+
+    b = Brain(neurons=neurons,dt=dt,tend=tend)
+    b.Simulate()

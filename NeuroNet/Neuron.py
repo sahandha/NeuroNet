@@ -21,7 +21,7 @@ class Neuron(GeneralModel):
     def AddSynapse(self,n):
         self._SynapsedNeurons.append(n)
         self._SynapseCount += 1
-        
+
     def AvailableModels(self):
         print(list(self._Models.keys()))
 
@@ -73,7 +73,7 @@ class Neuron(GeneralModel):
         self._w = self._X[1]
 
     def StoreInputHistory(self,i):
-        self._II[i] = self._Input
+        self._II[i] = self._params["I"] + self._Input
 
 
     #Coupled Inhibitory Oscillation Model

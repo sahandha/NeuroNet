@@ -17,6 +17,7 @@ class Neuron(GeneralModel):
         self.PlaceNeuron()
         self._SynapsedNeurons = []
         self._SynapseCount = 0
+        self._ActiveQ = False
 
     def AddSynapse(self,n):
         self._SynapsedNeurons.append(n)
@@ -71,6 +72,8 @@ class Neuron(GeneralModel):
         self.UpdateRK(i)
         self._V = self._X[0]
         self._w = self._X[1]
+        if self._V > 1:
+            self._ActiveQ = True
 
     def StoreInputHistory(self,i):
         self._II[i] = self._params["I"] + self._Input

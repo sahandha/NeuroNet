@@ -3,10 +3,11 @@ import networkx as nx
 from NeuroNet.Neuron import *
 import matplotlib.patches as patches
 from tqdm import tnrange, tqdm_notebook, tqdm
+import itertools
 
 class Brain:
 
-    def __init__(self, neurons=[], dt = 0.1, tend=200):
+    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=2,synapserate=10):
         self._Neurons      = neurons
         self._NeuronDict   = {}
         self.AddNeuronToDict()
@@ -15,10 +16,17 @@ class Brain:
         self._dt           = dt
         self._Tend         = tend
         self._TLen         = int(tend/dt)
+        self._ConnectionScale = connectionscale
+        self._SynapseRate     = synapserate
+        self._AverageConnectivity=[]
+        self._SynapseLimit = 100
+        self._SynapseCountHistory = []
         self.InitializeNetwork()
         self.NeuronPrimer()
         self.ComputeSynapseProbability()
-        self._AverageConnectivity=[]
+        self._NeuronPairs = list(itertools.permutations(self._Neurons,2))
+
+
 
     def NeuronPrimer(self):
         if len(self._Neurons)==0:
@@ -43,30 +51,53 @@ class Brain:
                     d = 0
                 else:
                     d = self.Distance2(np.array([n1._x,n1._y]), np.array([n2._x,n2._y]))
-                probabilityMatrix[(n1,n2)] = np.exp(-d/200)
-                probabilityMatrix[(n2,n1)] = np.exp(-d/200)
+                probabilityMatrix[(n1,n2)] = np.exp(-d/self._ConnectionScale)
+                probabilityMatrix[(n2,n1)] = np.exp(-d/self._ConnectionScale)
         self._SynapseProbability = probabilityMatrix
 
     def SynapseQ(self,probability):
         return random.random() < probability
 
     def Simulate(self):
-        for i in tnrange(self._TLen,desc='Time'):
+        for i in tnrange(self._TLen,desc='Time'): #tnrange only works with Jupyter
             self.Update(i)
             #self.NetworkProperties()
 
+
+    def UpdateSpecial(self,i):
+        self._t += self._dt
+        self._SynapseCountHistory.append(self._SynapseCount)
+
+        cn = self._NeuronPairs[0][0]
+        cn.Update(i)
+        for np in self._NeuronPairs:
+            self.SynapticActivitySpecial(np)
+            if np[0]!= cn:
+                cn.Update(i)
+                cn = np[0]
+
     def Update(self,i):
         self._t += self._dt
+        self._SynapseCountHistory.append(self._SynapseCount)
         for n in self._Neurons:
-            self.SynapticActivity(n)
+            if self._t%self._SynapseRate < 1e-6:
+                self.SynapticActivity(n)
             n.Update(i)
+
+    def SynapticActivitySpecial(self,neuronpair):
+        prob = self._SynapseProbability[neuronpair]
+        n1, n2 = neuronpair[0],neuronpair[1]
+        if self.SynapseQ(prob) and len(n1._SynapsedNeurons)<self._SynapseLimit:
+            n1.AddSynapse(n2)
+            self._SynapseCount += 1
+            self.AddEdge(n1,n2)
 
     def SynapticActivity(self,neuron):
 
         for n in self._Neurons:
             prob = self._SynapseProbability[(neuron,n)]
             if self.SynapseQ(prob) and (neuron._ID!=n._ID):
-                if len(neuron._SynapsedNeurons)<20:
+                if len(neuron._SynapsedNeurons)<self._SynapseLimit:
                     neuron.AddSynapse(n)
                     self._SynapseCount += 1
                     self.AddEdge(neuron,n)
@@ -85,14 +116,20 @@ class Brain:
     def AddEdge(self,n1,n2):
         edgeData = self._Network.get_edge_data(n1,n2,default=0)
         if edgeData==0:
-            self._Network.add_edge(n1, n2, weight=0.2)
+            self._Network.add_edge(n1, n2, weight=1)
         else:
-            self._Network.add_edge(n1, n2,weight=edgeData['weight']+0.2)
+            self._Network.add_edge(n1, n2,weight=edgeData['weight']+1)
 
         self._EdgeLabels[(n1,n2)]='{:2.1f}'.format(self._t)
 
     def NetworkProperties(self):
         self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
+        self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
+        plt.loglog(self._DegreeDistribution,'k-',marker='o')
+        plt.title("Degree rank plot")
+        plt.ylabel("degree")
+        plt.xlabel("rank")
+        plt.show()
         #self._Laplacian = nx.normalized_laplacian_matrix(self._Network.to_undirected())
         #self._Eigs      = np.linalg.eigvals(self._Laplacian.A)
         #print("Largest eigenvalue:", max(self._Eigs))
@@ -108,14 +145,19 @@ class Brain:
         plt.xlim((0,80))
         plt.ylim((0,80))
 
+
+        for n in self._Neurons:
+            if n._ActiveQ and n._ID != 0:
+                nx.set_node_attributes(self._Network, 'color', {n:'#918b21'})
+
         pos = nx.get_node_attributes(self._Network,'pos')
-        weights = [self._Network[u][v]['weight'] for u,v in self._Network.edges()]
+        weights = [2/self._SynapseLimit*self._Network[u][v]['weight'] for u,v in self._Network.edges()]
         nodecolors = list(nx.get_node_attributes(self._Network, 'color').values())
 
-        nx.draw(self._Network, pos, node_size=110,width=weights)
+        nx.draw(self._Network, pos, node_size=110, width=weights)
         nx.draw_networkx_nodes(self._Network, pos, node_size=110,node_color=nodecolors)
         nx.draw_networkx_labels(self._Network, pos,  labels=self._NodeLabels,font_color=[1,1,1],font_family='Times',font_size=8)
-        nx.draw_networkx_edges(self._Network, pos, edge_color='#68f2df', width=weights,arrows=True)
+        nx.draw_networkx_edges(self._Network, pos, edge_color='#2c8c7d', width=weights,arrows=True)
         if edgelabels:
             nx.draw_networkx_edge_labels(self._Network, pos, edge_labels=self._EdgeLabels, label_pos=0.5,font_size=6)
 

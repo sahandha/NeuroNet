@@ -63,7 +63,6 @@ class Brain:
             self.Update(i)
             #self.NetworkProperties()
 
-
     def UpdateSpecial(self,i):
         self._t += self._dt
         self._SynapseCountHistory.append(self._SynapseCount)
@@ -80,7 +79,7 @@ class Brain:
         self._t += self._dt
         self._SynapseCountHistory.append(self._SynapseCount)
         for n in self._Neurons:
-            if self._t%self._SynapseRate < 1e-6:
+            if self._t%self._SynapseRate < self._dt/2:
                 self.SynapticActivity(n)
             n.Update(i)
 
@@ -122,21 +121,33 @@ class Brain:
 
         self._EdgeLabels[(n1,n2)]='{:2.1f}'.format(self._t)
 
-    def NetworkProperties(self):
-        self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
+    def PlotConnectivityProperties(self):
+
+        #self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
+
+        plt.subplot(131)
         self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
-        plt.loglog(self._DegreeDistribution,'k-',marker='o')
+        p=plt.loglog(self._DegreeDistribution,'-',marker='o')
+        plt.setp(p,color='darkblue')
+
         plt.title("Degree rank plot")
         plt.ylabel("degree")
         plt.xlabel("rank")
+
+        plt.subplot(132)
+        plt.hist([len(n._SynapsedNeurons) for n in self._Neurons], 20,facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+        plt.title('Distribution of number of synapses formed')
+        plt.xlabel('Number of synapses')
+        plt.ylabel('Count')
+
+        plt.subplot(133)
+        weights = [self._Network.get_edge_data(n1,n2,default=0)['weight'] for n1,n2 in self._Network.edges()]
+        plt.hist(weights, 20, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+        plt.title('Distribution of edge weights')
+        plt.xlabel('Edge weight')
+        plt.ylabel('Count')
+
         plt.show()
-        #self._Laplacian = nx.normalized_laplacian_matrix(self._Network.to_undirected())
-        #self._Eigs      = np.linalg.eigvals(self._Laplacian.A)
-        #print("Largest eigenvalue:", max(self._Eigs))
-        #print("Smallest eigenvalue:", min(self._Eigs))
-        #plt.hist(self._Eigs,bins=100) # histogram with 100 bins
-        #plt.xlim(0,2)  # eigenvalues between 0 and 2
-        #plt.show()
 
     def DrawNetwork(self, edgelabels=False):
         warnings.filterwarnings("ignore")
@@ -170,6 +181,65 @@ class Brain:
 
         plt.show()
 
+    def ComputeEigenValues(self,matrix="Laplacian"):
+        if matrix=="Laplacian":
+            L = nx.directed_laplacian_matrix(self._Network)
+            eigs = np.linalg.eigvals(L)
+        elif matrix=="Adjacency":
+            eigs = sorted(nx.adjacency_spectrum(self._Network))
+        return eigs
+
+    def PlotEigenValues(self):
+        plt.figure
+
+        plt.subplot(121)
+        eigs = self.ComputeEigenValues(matrix="Adjacency")
+        reals = [np.real(n) for n in eigs]
+        imag  = [np.imag(n) for n in eigs]
+        plt.plot(reals,imag,'o')
+        plt.grid(True)
+        plt.title('Eigenvalues of Adjacency Matrix')
+        plt.xlabel('real part')
+        plt.ylabel('imaginary part')
+
+        plt.subplot(122)
+        eigs = self.ComputeEigenValues(matrix="Laplacian")
+        reals = [np.real(n) for n in eigs]
+        imag  = [np.imag(n) for n in eigs]
+        plt.plot(reals,imag,'o')
+        plt.grid(True)
+        plt.title('Eigenvalues of Laplacian Matrix')
+        plt.xlabel('real part')
+
+
+        plt.show()
+
+    def PlotDegreeDistribution(self):
+        idegree = list(self._Network.in_degree().values())
+        odegree = list(self._Network.out_degree().values())
+
+        try:
+            plt.subplot(131)
+            plt.hist(idegree, max(idegree), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.title('in-degree')
+            plt.subplot(132)
+            plt.hist(odegree, max(odegree), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.title('out-degree')
+            plt.subplot(133)
+            plt.hist(self._DegreeDistribution, max(self._DegreeDistribution), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.title('total degree distribution')
+            plt.show()
+        except:
+            print("No connections at all")
+
+    def PlotSynapseRank(self):
+        p = plt.plot(self._Neurons[0]._Time,self._SynapseCountHistory)
+        plt.setp(p, 'Color', [0.6,0.4,0.5], 'linewidth', 3)
+        plt.grid(True)
+        plt.ylabel("Count")
+        plt.xlabel("Time")
+        plt.title('Synapse Count Increase Over Time')
+        plt.show()
 
 if __name__ == "__main__":
     tend = 400

@@ -17,6 +17,7 @@ class Neuron(GeneralModel):
         self.PlaceNeuron()
         self._SynapsedNeurons = []
         self._SynapseCount = 0
+        self._SynapticStrength = random.uniform(0.1,0.11)
         self._ActiveQ = False
 
     def AddSynapse(self,n):
@@ -64,7 +65,7 @@ class Neuron(GeneralModel):
 
     def UpdateSynapses(self):
         for n in self._SynapsedNeurons:
-            n.setInput(0.1*self.getV())
+            n.setInput(self._SynapticStrength*self.getV())
 
     def Update(self,i):
         self.StoreInputHistory(i)

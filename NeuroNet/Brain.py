@@ -7,7 +7,7 @@ import itertools
 
 class Brain:
 
-    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=2,synapserate=10):
+    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=2):
         self._Neurons      = neurons
         self._NeuronDict   = {}
         self.AddNeuronToDict()
@@ -17,7 +17,6 @@ class Brain:
         self._Tend         = tend
         self._TLen         = int(tend/dt)
         self._ConnectionScale = connectionscale
-        self._SynapseRate     = synapserate
         self._AverageConnectivity=[]
         self._SynapseLimit = 100
         self._SynapseCountHistory = []
@@ -25,8 +24,13 @@ class Brain:
         self.NeuronPrimer()
         self.ComputeSynapseProbability()
         self._NeuronPairs = list(itertools.permutations(self._Neurons,2))
+        self._ActiveNeurons = []
 
 
+    def CollectActiveNeurons(self):
+        for n in self._Neurons:
+            if n._ActiveQ:
+                self._ActiveNeurons.append(n)
 
     def NeuronPrimer(self):
         if len(self._Neurons)==0:
@@ -79,8 +83,7 @@ class Brain:
         self._t += self._dt
         self._SynapseCountHistory.append(self._SynapseCount)
         for n in self._Neurons:
-            if self._t%self._SynapseRate < self._dt/2:
-                self.SynapticActivity(n)
+            self.SynapticActivity(n)
             n.Update(i)
 
     def SynapticActivitySpecial(self,neuronpair):
@@ -222,12 +225,18 @@ class Brain:
             plt.subplot(131)
             plt.hist(idegree, max(idegree), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('in-degree')
+            plt.xlabel('degree')
+            plt.ylabel('count')
             plt.subplot(132)
             plt.hist(odegree, max(odegree), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('out-degree')
+            plt.xlabel('degree')
+            plt.ylabel('count')
             plt.subplot(133)
             plt.hist(self._DegreeDistribution, max(self._DegreeDistribution), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('total degree distribution')
+            plt.xlabel('degree')
+            plt.ylabel('count')
             plt.show()
         except:
             print("No connections at all")

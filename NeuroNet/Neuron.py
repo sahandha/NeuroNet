@@ -7,8 +7,9 @@ class Neuron(GeneralModel):
         self._ID    = ID
         self._V     = 0
         self._w     = 0
+        self._s     = 1
         self._Input = 0
-        self.Initialize([self._V,self._w])
+        self.Initialize([self._V,self._w, self._s])
         self._Synapses = synapses
         self._II       = np.zeros_like(self._Time) #important it comes afeter initialization.
         self._Models = {}  # remove SIR, Vander-pol and other models.
@@ -57,15 +58,21 @@ class Neuron(GeneralModel):
     def getV(self):
         return self._V
 
+    def getS(self):
+        return self._s
+
     def setV(self, v):
         self._V = v
 
     def setW(self, w):
         self._w = w
 
+    def setS(self, s):
+        self._s = s
+
     def UpdateSynapses(self):
         for n in self._SynapsedNeurons:
-            n.setInput(self._SynapticStrength*self.getV())
+            n.setInput(self.getV())
 
     def Update(self,i):
         self.StoreInputHistory(i)
@@ -73,6 +80,7 @@ class Neuron(GeneralModel):
         self.UpdateRK(i)
         self._V = self._X[0]
         self._w = self._X[1]
+        self._s = self._X[2]
         if self._V > 1:
             self._ActiveQ = True
 
@@ -117,9 +125,18 @@ class Neuron(GeneralModel):
         a   = params["a"]
         b   = params["b"]
         tau = params["tau"]
+        phi = params["phi"]
+        theta_syn = params["theta_syn"]
+        k   = params["k"]
+        g_syn = params["g_syn"]
+        v_syn = params["v_syn"]
 
-        V, w = x[0], x[1]
+        V, w, s = x[0], x[1], x[2]
 
-        dV = V - V**3/3 - w + I + self._Input
+        dV = V - V**3/3 - w + I + s*g_syn*(self._Input-v_syn)
         dw = (V + a - b*w)/tau
-        return np.array([dV, dw])
+        ds = phi*(1-s)*self.Hev(self._Input - theta_syn)-1/tau*k*s
+        return np.array([dV, dw, ds])
+
+    def Hev(self, x):
+        return 0.5 * (np.sign(x) + 1)

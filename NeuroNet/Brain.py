@@ -123,25 +123,3 @@ class Brain:
             self._Network.add_edge(n1, n2,weight=edgeData['weight']+1)
 
         self._EdgeLabels[(n1,n2)]='{:2.1f}'.format(self._t)
-
-
-
-if __name__ == "__main__":
-    tend = 400
-    dt   = 0.1
-
-    numNeurons = 50
-    displaynum = 10
-    neurons = []
-
-    for i in range(numNeurons):
-        if i==0:
-            I=1
-        else:
-            I=0
-        n = Neuron(i,dt=dt,tend=tend,a=0.8,b=0.7,tau=12.5,I=I)
-        n.SetFlow(n.FHNFlow)
-        neurons.append(n)
-
-    b = Brain(neurons=neurons,dt=dt,tend=tend)
-    b.Simulate()

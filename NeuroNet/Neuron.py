@@ -133,7 +133,7 @@ class Neuron(GeneralModel):
 
         V, w, s = x[0], x[1], x[2]
 
-        dV = V - V**3/3 - w + I + s*g_syn*(self._Input-v_syn)
+        dV = V - V**3/3 - w + I + self._SynapticStrength*self._Input#s*g_syn*(self._Input-v_syn)
         dw = (V + a - b*w)/tau
         ds = phi*(1-s)*self.Hev(self._Input - theta_syn)-1/tau*k*s
         return np.array([dV, dw, ds])

@@ -7,7 +7,7 @@ import itertools
 
 class Brain:
 
-    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=2):
+    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=20, synapselimit=100):
         self._Neurons      = neurons
         self._NeuronDict   = {}
         self.AddNeuronToDict()
@@ -18,9 +18,9 @@ class Brain:
         self._TLen         = int(tend/dt)
         self._ConnectionScale = connectionscale
         self._AverageConnectivity=[]
-        self._SynapseLimit = 300
+        self._SynapseLimit = synapselimit
         self._SynapseCountHistory = []
-        self.InitializeNetwork()
+        self.ConstructNetwork()
         self.NeuronPrimer()
         self.ComputeSynapseProbability()
         self._NeuronPairs = list(itertools.permutations(self._Neurons,2))
@@ -67,32 +67,12 @@ class Brain:
             self.Update(i)
             #self.NetworkProperties()
 
-    def UpdateSpecial(self,i):
-        self._t += self._dt
-        self._SynapseCountHistory.append(self._SynapseCount)
-
-        cn = self._NeuronPairs[0][0]
-        cn.Update(i)
-        for np in self._NeuronPairs:
-            self.SynapticActivitySpecial(np)
-            if np[0]!= cn:
-                cn.Update(i)
-                cn = np[0]
-
     def Update(self,i):
         self._t += self._dt
         self._SynapseCountHistory.append(self._SynapseCount)
         for n in self._Neurons:
             self.SynapticActivity(n)
             n.Update(i)
-
-    def SynapticActivitySpecial(self,neuronpair):
-        prob = self._SynapseProbability[neuronpair]
-        n1, n2 = neuronpair[0],neuronpair[1]
-        if self.SynapseQ(prob) and len(n1._SynapsedNeurons)<self._SynapseLimit:
-            n1.AddSynapse(n2)
-            self._SynapseCount += 1
-            self.AddEdge(n1,n2)
 
     def SynapticActivity(self,neuron):
 
@@ -104,7 +84,7 @@ class Brain:
                     self._SynapseCount += 1
                     self.AddEdge(neuron,n)
 
-    def InitializeNetwork(self):
+    def ConstructNetwork(self):
         self._Network      = nx.DiGraph()
         self._EdgeLabels   = {}
         self._NodeLabels   = {}

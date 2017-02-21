@@ -7,7 +7,7 @@ import itertools
 
 class Brain:
 
-    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=20, synapselimit=100):
+    def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=20):
         self._Neurons      = neurons
         self._NeuronDict   = {}
         self.AddNeuronToDict()
@@ -18,19 +18,21 @@ class Brain:
         self._TLen         = int(tend/dt)
         self._ConnectionScale = connectionscale
         self._AverageConnectivity=[]
-        self._SynapseLimit = synapselimit
         self._SynapseCountHistory = []
         self.ConstructNetwork()
         self.NeuronPrimer()
         self.ComputeSynapseProbability()
         self._NeuronPairs = list(itertools.permutations(self._Neurons,2))
         self._ActiveNeurons = []
+        self._InactiveNeurons = []
 
 
     def CollectActiveNeurons(self):
         for n in self._Neurons:
             if n._ActiveQ:
                 self._ActiveNeurons.append(n)
+            else:
+                self._InactiveNeurons.append(n)
 
     def NeuronPrimer(self):
         if len(self._Neurons)==0:
@@ -55,8 +57,8 @@ class Brain:
                     d = 0
                 else:
                     d = self.Distance2(np.array([n1._x,n1._y]), np.array([n2._x,n2._y]))
-                probabilityMatrix[(n1,n2)] = np.exp(-d/self._ConnectionScale)
-                probabilityMatrix[(n2,n1)] = np.exp(-d/self._ConnectionScale)
+                probabilityMatrix[(n1,n2)] = np.exp(-d/(self._ConnectionScale*(self._t+self._dt)))
+                probabilityMatrix[(n2,n1)] = np.exp(-d/(self._ConnectionScale*(self._t+self._dt)))
         self._SynapseProbability = probabilityMatrix
 
     def SynapseQ(self,probability):
@@ -79,7 +81,7 @@ class Brain:
         for n in self._Neurons:
             prob = self._SynapseProbability[(neuron,n)]
             if self.SynapseQ(prob) and (neuron._ID!=n._ID):
-                if len(neuron._SynapsedNeurons)<self._SynapseLimit:
+                if neuron._SynapseCount<neuron._SynapseLimit:
                     neuron.AddSynapse(n)
                     self._SynapseCount += 1
                     self.AddEdge(neuron,n)

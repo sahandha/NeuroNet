@@ -5,9 +5,10 @@ class Visualization:
     def __init__(self, network, neurons, synapsecount):
         self._Network = network
         self._Neurons = neurons
-        self._NetworkEdgeWeightFactor = 1./100
+        self._NetworkEdgeWeightFactor = 3
         self._NodeLabels = {}
         self._SynapseCountHistory = synapsecount
+
     def PlotConnectivityProperties(self):
 
         #self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
@@ -22,7 +23,7 @@ class Visualization:
         plt.xlabel("rank")
 
         plt.subplot(132)
-        plt.hist([len(n._SynapsedNeurons) for n in self._Neurons], 20,facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+        plt.hist([n._SynapseCount for n in self._Neurons], 20,facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
         plt.title('Distribution of number of synapses formed')
         plt.xlabel('Number of synapses')
         plt.ylabel('Count')
@@ -50,7 +51,7 @@ class Visualization:
                 nx.set_node_attributes(self._Network, 'color', {n:'#918b21'})
 
         pos = nx.get_node_attributes(self._Network,'pos')
-        weights = [self._NetworkEdgeWeightFactor*self._Network[u][v]['weight'] for u,v in self._Network.edges()]
+        weights = [self._NetworkEdgeWeightFactor/u._SynapseLimit*self._Network[u][v]['weight'] for u,v in self._Network.edges()]
         nodecolors = list(nx.get_node_attributes(self._Network, 'color').values())
 
         nx.draw(self._Network, pos, node_size=110, width=weights)

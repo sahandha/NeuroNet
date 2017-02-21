@@ -9,20 +9,32 @@ class Neuron(GeneralModel):
         self._w     = 0
         self._s     = 1
         self._Input = 0
-        self.Initialize([self._V,self._w, self._s])
+        self.Initialize([self._V,self._w])
         self._Synapses = synapses
         self._II       = np.zeros_like(self._Time) #important it comes afeter initialization.
         self._Models = {}  # remove SIR, Vander-pol and other models.
         self._Models["FittzHuge-Nagamo"] = self.FHNFlow
         self._Models["Simple-Ionic"]     = self.SIFlow
         self.PlaceNeuron()
-        self._SynapsedNeurons = []
+        self._SynapsedNeuronsDict = {}
         self._SynapseCount = 0
-        self._SynapticStrength = random.uniform(0.1,0.11)
         self._ActiveQ = False
+        self._SynapseLimit=1000
+        self._NoiseMean = -1.27
+        self._NoiseVariance = 0.001
+        self._SynapticStrength = 1./self._SynapseLimit#random.uniform(0.1,0.11)
 
+
+    def SetSynapseLimit(self, lim):
+        self._SynapseLimit = lim
+        self._SynapticStrength = 1./self._SynapseLimit
     def AddSynapse(self,n):
-        self._SynapsedNeurons.append(n)
+        try:
+            s0 = self._SynapsedNeuronsDict[n]
+            self._SynapsedNeuronsDict[n] = self._SynapsedNeuronsDict[n]+1
+        except:
+            self._SynapsedNeuronsDict[n] = 1
+
         self._SynapseCount += 1
 
     def AvailableModels(self):
@@ -49,40 +61,44 @@ class Neuron(GeneralModel):
 
         self._Cell = (int(np.floor(self._x/10)),int(np.floor(self._y/10)))
 
-    def setInput(self, i):
+    def SetInput(self, i):
         self._Input = i
 
-    def getW(self):
+    def GetW(self):
         return self._w
 
-    def getV(self):
+    def GetV(self):
         return self._V
 
-    def getS(self):
+    def GetS(self):
         return self._s
 
-    def setV(self, v):
+    def SetV(self, v):
         self._V = v
 
-    def setW(self, w):
+    def SetW(self, w):
         self._w = w
 
-    def setS(self, s):
+    def SetS(self, s):
         self._s = s
 
     def UpdateSynapses(self):
-        for n in self._SynapsedNeurons:
-            n.setInput(self.getV())
+        for n, s in self._SynapsedNeuronsDict.items():
+            n.SetInput(s*self._SynapticStrength*self.GetV())
 
     def Update(self,i):
         self.StoreInputHistory(i)
         self.UpdateSynapses()
         self.UpdateRK(i)
+        # These are just for accessing the values. They don't modify the model.
         self._V = self._X[0]
         self._w = self._X[1]
-        self._s = self._X[2]
         if self._V > 1:
             self._ActiveQ = True
+        self.AddNoise()
+
+    def AddNoise(self):
+        self._X += np.random.normal(0, self._NoiseVariance)
 
     def StoreInputHistory(self,i):
         self._II[i] = self._params["I"] + self._Input
@@ -125,18 +141,12 @@ class Neuron(GeneralModel):
         a   = params["a"]
         b   = params["b"]
         tau = params["tau"]
-        phi = params["phi"]
-        theta_syn = params["theta_syn"]
-        k   = params["k"]
-        g_syn = params["g_syn"]
-        v_syn = params["v_syn"]
 
-        V, w, s = x[0], x[1], x[2]
+        V, w = x[0], x[1]
 
-        dV = V - V**3/3 - w + I + self._SynapticStrength*self._Input#s*g_syn*(self._Input-v_syn)
+        dV = V - V**3/3 - w + I + self._Input
         dw = (V + a - b*w)/tau
-        ds = phi*(1-s)*self.Hev(self._Input - theta_syn)-1/tau*k*s
-        return np.array([dV, dw, ds])
+        return np.array([dV, dw])
 
     def Hev(self, x):
         return 0.5 * (np.sign(x) + 1)

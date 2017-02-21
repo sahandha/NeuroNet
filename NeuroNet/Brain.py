@@ -8,6 +8,9 @@ import itertools
 class Brain:
 
     def __init__(self, neurons=[], dt = 0.1, tend=200, connectionscale=20):
+        '''
+            This class handles the overarching organization.
+        '''
         self._Neurons      = neurons
         self._NeuronDict   = {}
         self.AddNeuronToDict()
@@ -57,8 +60,8 @@ class Brain:
                     d = 0
                 else:
                     d = self.Distance2(np.array([n1._x,n1._y]), np.array([n2._x,n2._y]))
-                probabilityMatrix[(n1,n2)] = np.exp(-d/(self._ConnectionScale*(self._t+self._dt)))
-                probabilityMatrix[(n2,n1)] = np.exp(-d/(self._ConnectionScale*(self._t+self._dt)))
+                probabilityMatrix[(n1,n2)] = np.exp(-d/(self._ConnectionScale))#*(self._t+self._dt)))
+                probabilityMatrix[(n2,n1)] = np.exp(-d/(self._ConnectionScale))#*(self._t+self._dt)))
         self._SynapseProbability = probabilityMatrix
 
     def SynapseQ(self,probability):

@@ -3,9 +3,12 @@ class Visualization:
 
 
     def __init__(self, network, neurons, synapsecount):
+        '''
+            Visualization class
+        '''
         self._Network = network
         self._Neurons = neurons
-        self._NetworkEdgeWeightFactor = 3
+        self._NetworkEdgeWeightFactor = 1
         self._NodeLabels = {}
         self._SynapseCountHistory = synapsecount
 

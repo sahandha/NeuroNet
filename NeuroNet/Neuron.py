@@ -3,6 +3,9 @@ import random
 from GeneralModel import *
 class Neuron(GeneralModel):
     def __init__(self, ID, synapses=[], tstart=0, tend=200, dt=0.1, **params):
+        '''
+            The Neuron object
+        '''
         GeneralModel.__init__(self, Name="Neuron {}".format(ID),tstart=tstart, tend=tend, dt=dt,**params)
         self._ID    = ID
         self._V     = 0
@@ -84,7 +87,7 @@ class Neuron(GeneralModel):
 
     def UpdateSynapses(self):
         for n, s in self._SynapsedNeuronsDict.items():
-            n.SetInput(s*self._SynapticStrength*self.GetV())
+            n.SetInput(10*s*self._SynapticStrength*self.GetV())
 
     def Update(self,i):
         self.StoreInputHistory(i)
@@ -98,7 +101,7 @@ class Neuron(GeneralModel):
         self.AddNoise()
 
     def AddNoise(self):
-        self._X += np.random.normal(0, self._NoiseVariance)
+        self._X[1] += np.random.normal(0, self._NoiseVariance)
 
     def StoreInputHistory(self,i):
         self._II[i] = self._params["I"] + self._Input

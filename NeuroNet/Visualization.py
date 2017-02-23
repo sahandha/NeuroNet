@@ -1,7 +1,6 @@
 from NeuroNet.Brain import *
 class Visualization:
 
-
     def __init__(self, network, neurons, synapsecount):
         '''
             Visualization class

@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import matplotlib.pylab as plt
+from scipy.signal import filtfilt, butter
 
 class DataImport:
 
@@ -38,3 +39,8 @@ class DataImport:
         plt.xlabel(r'time (seconds)')
         plt.ylabel(r'potential ($\mu$V)')
         plt.show()
+
+    def ButterWorthFilter(self,order=3, cutoff=0.02):
+        b, a = butter(order, cutoff)
+        for i in range(self._x.shape[1]):
+            self._x[:,i] = filtfilt(b,a,self._x[:,i])

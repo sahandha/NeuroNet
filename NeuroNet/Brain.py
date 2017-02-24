@@ -60,15 +60,15 @@ class Brain:
                     d = 0
                 else:
                     d = self.Distance2(np.array([n1._x,n1._y]), np.array([n2._x,n2._y]))
-                probabilityMatrix[(n1,n2)] = np.exp(-d/(self._ConnectionScale))#*(self._t+self._dt)))
-                probabilityMatrix[(n2,n1)] = np.exp(-d/(self._ConnectionScale))#*(self._t+self._dt)))
+                probabilityMatrix[(n1,n2)] = np.exp(-d/(self._ConnectionScale*(self._t+self._dt)))
+                probabilityMatrix[(n2,n1)] = np.exp(-d/(self._ConnectionScale*(self._t+self._dt)))
         self._SynapseProbability = probabilityMatrix
 
     def SynapseQ(self,probability):
         return random.random() < probability
 
     def Simulate(self):
-        for i in tnrange(self._TLen,desc='Time'): #tnrange only works with Jupyter
+        for i in tnrange(self._TLen,desc='Total Simulation Time'): #tnrange only works with Jupyter
             self.Update(i)
             #self.NetworkProperties()
 
@@ -76,7 +76,7 @@ class Brain:
         self._t += self._dt
         self._SynapseCountHistory.append(self._SynapseCount)
         for n in self._Neurons:
-            self.SynapticActivity(n)
+            #self.SynapticActivity(n)
             n.Update(i)
 
     def SynapticActivity(self,neuron):
@@ -88,6 +88,10 @@ class Brain:
                     neuron.AddSynapse(n)
                     self._SynapseCount += 1
                     self.AddEdge(neuron,n)
+
+    def DevelopSynapseNetwork(self):
+        for n in self._Neurons:
+            self.SynapticActivity(n)
 
     def ConstructNetwork(self):
         self._Network      = nx.DiGraph()

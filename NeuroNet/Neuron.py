@@ -1,5 +1,4 @@
 #! python3
-import random
 from GeneralModel import *
 class Neuron(GeneralModel):
     def __init__(self, ID, synapses=[], tstart=0, tend=200, dt=0.1, **params):
@@ -8,6 +7,7 @@ class Neuron(GeneralModel):
         '''
         GeneralModel.__init__(self, Name="Neuron {}".format(ID),tstart=tstart, tend=tend, dt=dt,**params)
         self._ID    = ID
+        self._eps   = params["eps"] # for scaling time.
         self._V     = 0
         self._w     = 0
         self._s     = 1
@@ -18,23 +18,29 @@ class Neuron(GeneralModel):
         self._Models = {}  # remove SIR, Vander-pol and other models.
         self._Models["FittzHuge-Nagamo"] = self.FHNFlow
         self._Models["Simple-Ionic"]     = self.SIFlow
+        self._Distance = {}
         self.PlaceNeuron()
         self._SynapsedNeuronsDict = {}
         self._SynapseCount = 0
         self._ActiveQ = False
         self._SynapseLimit=1000
-        self._NoiseMean = -1.27
-        self._NoiseVariance = 0.001
+        self._NoiseMean = 0
+        self._NoiseSTD = 0.01
+        self._Noise = np.random.normal(self._NoiseMean, self._NoiseSTD,len(self._Time))
         self._SynapticStrength = 1./self._SynapseLimit#random.uniform(0.1,0.11)
 
-
+    def SetNoise(self,m, v):
+        self._NoiseMean = m
+        self._NoiseSTD = v
+        self._Noise = np.random.normal(self._NoiseMean, self._NoiseSTD,len(self._Time))
     def SetSynapseLimit(self, lim):
         self._SynapseLimit = lim
         self._SynapticStrength = 1./self._SynapseLimit
+
     def AddSynapse(self,n):
         try:
             s0 = self._SynapsedNeuronsDict[n]
-            self._SynapsedNeuronsDict[n] = self._SynapsedNeuronsDict[n]+1
+            self._SynapsedNeuronsDict[n] += 1
         except:
             self._SynapsedNeuronsDict[n] = 1
 
@@ -44,20 +50,20 @@ class Neuron(GeneralModel):
         print(list(self._Models.keys()))
 
     def PlaceNeuron(self):
-        x = random.randrange(0,80)
-        y = random.randrange(0,80)
+        x = 80*np.random.random() #range between 0, 80
+        y = 80*np.random.random() #range between 0, 80
         if x<=10 and y<=10:
-            self._x = x + random.randrange(10,60)
-            self._y = y + random.randrange(10,60)
+            self._x = x + (50*np.random.random()+10) #range between 10, 60
+            self._y = y + (50*np.random.random()+10) #range between 10, 60
         elif x>=70 and y<=10:
-            self._x = x - random.randrange(10,60)
-            self._y = y + random.randrange(10,60)
+            self._x = x - (50*np.random.random()+10) #range between 10, 60
+            self._y = y + (50*np.random.random()+10) #range between 10, 60
         elif x<=10 and y>=70:
-            self._x = x + random.randrange(10,60)
-            self._y = y - random.randrange(10,60)
+            self._x = x + (50*np.random.random()+10) #range between 10, 60
+            self._y = y - (50*np.random.random()+10) #range between 10, 60
         elif x>=70 and y>=70:
-            self._x = x - random.randrange(10,60)
-            self._y = y - random.randrange(10,60)
+            self._x = x - (50*np.random.random()+10) #range between 10, 60
+            self._y = y - (50*np.random.random()+10) #range between 10, 60
         else:
             self._x = x
             self._y = y
@@ -87,25 +93,29 @@ class Neuron(GeneralModel):
 
     def UpdateSynapses(self):
         for n, s in self._SynapsedNeuronsDict.items():
-            n.SetInput(10*s*self._SynapticStrength*self.GetV())
+            delayTime = 2*self._eps*self._Distance[n] #TODO: Units need to be dorted out
+            delayIdx  = int((self._t-delayTime)/self._dt)
+            if delayIdx > 0:
+                input = self._XX[delayIdx,1]
+            else:
+                input = 0
+            n._Input  = 10*s*self._SynapticStrength*input
 
     def Update(self,i):
-        self.StoreInputHistory(i)
+        #self.StoreInputHistory(i)
         self.UpdateSynapses()
-        self.UpdateRK(i)
-        # These are just for accessing the values. They don't modify the model.
+        self.UpdateEuler(i)
         self._V = self._X[0]
         self._w = self._X[1]
         if self._V > 1:
             self._ActiveQ = True
-        self.AddNoise()
+        self.AddNoise(i)
 
-    def AddNoise(self):
-        self._X[1] += np.random.normal(0, self._NoiseVariance)
+    def AddNoise(self,i):
+        self._X[1] += self._Noise[i]
 
     def StoreInputHistory(self,i):
         self._II[i] = self._params["I"] + self._Input
-
 
     #Coupled Inhibitory Oscillation Model
 
@@ -147,8 +157,8 @@ class Neuron(GeneralModel):
 
         V, w = x[0], x[1]
 
-        dV = V - V**3/3 - w + I + self._Input
-        dw = (V + a - b*w)/tau
+        dV = (V - V**3/3 - w + I + self._Input)/self._eps
+        dw = ((V + a - b*w)/tau)/self._eps
         return np.array([dV, dw])
 
     def Hev(self, x):

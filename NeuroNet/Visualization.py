@@ -7,9 +7,10 @@ class Visualization:
         '''
         self._Network = network
         self._Neurons = neurons
-        self._NetworkEdgeWeightFactor = 1
+        self._NetworkEdgeWeightFactor = 10
         self._NodeLabels = {}
         self._SynapseCountHistory = synapsecount
+        self._EdgeLabels = []
 
     def PlotConnectivityProperties(self):
 
@@ -83,25 +84,31 @@ class Visualization:
     def PlotEigenValues(self):
         plt.figure
 
-        plt.subplot(121)
-        eigs = self.ComputeEigenValues(matrix="Adjacency")
-        reals = [np.real(n) for n in eigs]
-        imag  = [np.imag(n) for n in eigs]
-        plt.plot(reals,imag,'o')
-        plt.grid(True)
-        plt.title('Eigenvalues of Adjacency Matrix')
-        plt.xlabel('real part')
-        plt.ylabel('imaginary part')
+        try:
+            plt.subplot(121)
+            eigs = self.ComputeEigenValues(matrix="Adjacency")
+            reals = [np.real(n) for n in eigs]
+            imag  = [np.imag(n) for n in eigs]
+            plt.plot(reals,imag,'o')
+            plt.grid(True)
+            plt.title('Eigenvalues of Adjacency Matrix')
+            plt.xlabel('real part')
+            plt.ylabel('imaginary part')
 
-        plt.subplot(122)
-        eigs = self.ComputeEigenValues(matrix="Laplacian")
-        reals = [np.real(n) for n in eigs]
-        imag  = [np.imag(n) for n in eigs]
-        plt.plot(reals,imag,'o')
-        plt.grid(True)
-        plt.title('Eigenvalues of Laplacian Matrix')
-        plt.xlabel('real part')
+        except:
+            print('Something went wrong')
 
+        try:
+            plt.subplot(122)
+            eigs = self.ComputeEigenValues(matrix="Laplacian")
+            reals = [np.real(n) for n in eigs]
+            imag  = [np.imag(n) for n in eigs]
+            plt.plot(reals,imag,'o')
+            plt.grid(True)
+            plt.title('Eigenvalues of Laplacian Matrix')
+            plt.xlabel('real part')
+        except:
+            print('Something went wrong.')
 
         plt.show()
 

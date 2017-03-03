@@ -94,12 +94,13 @@ class Neuron(GeneralModel):
     def UpdateSynapses(self):
         for n, s in self._SynapsedNeuronsDict.items():
             delayTime = 2*self._eps*self._Distance[n] #TODO: Units need to be dorted out
+            delayTime = 0
             delayIdx  = int((self._t-delayTime)/self._dt)
             if delayIdx > 0:
                 input = self._XX[delayIdx,1]
             else:
                 input = 0
-            n._Input  = 10*s*self._SynapticStrength*input
+            n._Input  = 100*s*self._SynapticStrength*input
 
     def Update(self,i):
         #self.StoreInputHistory(i)
@@ -154,6 +155,9 @@ class Neuron(GeneralModel):
         a   = params["a"]
         b   = params["b"]
         tau = params["tau"]
+
+        #if self._t > 200*self._eps:
+        #    I=0
 
         V, w = x[0], x[1]
 

@@ -30,6 +30,7 @@ class Brain:
 
 
     def CollectActiveNeurons(self):
+        self._ActiveNeurons=[]
         for n in self._Neurons:
             if n._ActiveQ:
                 self._ActiveNeurons.append(n)

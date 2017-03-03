@@ -144,3 +144,18 @@ class Visualization:
         plt.xlabel("Time")
         plt.title('Synapse Count Increase Over Time')
         plt.show()
+
+    def PlotTimeFrequency(self):
+        time = self._Neurons[0]._Time
+        data = np.zeros((len(self._Neurons),len(time)))
+
+        for i,n in enumerate(self._Neurons):
+            for j,t in enumerate(time):
+                data[i,j] = n._XX[j,0]
+
+        ax = plt.subplot(1,1,1)
+        p=ax.pcolorfast(time,range(len(self._Neurons)),data)
+        plt.colorbar(p)
+        plt.xlabel('Time (Seconds)')
+        plt.ylabel('Neurons')
+        plt.show()

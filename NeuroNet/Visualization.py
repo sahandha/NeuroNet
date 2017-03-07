@@ -73,20 +73,20 @@ class Visualization:
 
         plt.show()
 
-    def ComputeEigenValues(self,matrix="Laplacian"):
+    def ComputeEigenValues(self,matrix="Laplacian",numbertodrop=0):
         if matrix=="Laplacian":
             L = nx.directed_laplacian_matrix(self._Network)
             eigs = np.linalg.eigvals(L)
         elif matrix=="Adjacency":
             eigs = sorted(nx.adjacency_spectrum(self._Network))
-        return eigs
+        return eigs[0:-numbertodrop]
 
-    def PlotEigenValues(self):
+    def PlotEigenValues(self,numbertodrop=0):
         plt.figure
 
         try:
             plt.subplot(121)
-            eigs = self.ComputeEigenValues(matrix="Adjacency")
+            eigs = self.ComputeEigenValues(matrix="Adjacency",numbertodrop=numbertodrop)
             reals = [np.real(n) for n in eigs]
             imag  = [np.imag(n) for n in eigs]
             plt.plot(reals,imag,'o')
@@ -100,7 +100,7 @@ class Visualization:
 
         try:
             plt.subplot(122)
-            eigs = self.ComputeEigenValues(matrix="Laplacian")
+            eigs = self.ComputeEigenValues(matrix="Laplacian",numbertodrop=numbertodrop)
             reals = [np.real(n) for n in eigs]
             imag  = [np.imag(n) for n in eigs]
             plt.plot(reals,imag,'o')
@@ -118,17 +118,17 @@ class Visualization:
 
         try:
             plt.subplot(131)
-            plt.hist(idegree, max(idegree), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.hist(idegree, max(idegree)/5, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('in-degree')
             plt.xlabel('degree')
             plt.ylabel('count')
             plt.subplot(132)
-            plt.hist(odegree, max(odegree), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.hist(odegree, max(odegree)/5, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('out-degree')
             plt.xlabel('degree')
             plt.ylabel('count')
             plt.subplot(133)
-            plt.hist(self._DegreeDistribution, max(self._DegreeDistribution), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.hist(self._DegreeDistribution, max(self._DegreeDistribution)/5, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('total degree distribution')
             plt.xlabel('degree')
             plt.ylabel('count')
@@ -158,4 +158,29 @@ class Visualization:
         plt.colorbar(p)
         plt.xlabel('Time (Seconds)')
         plt.ylabel('Neurons')
+        plt.show()
+
+    def PlotOutputSignal(self):
+        time = self._Neurons[0]._Time
+        data = np.zeros(len(time))
+
+        for n in self._Neurons:
+            if n._ActiveQ:
+                data += n._XX[:,0]
+
+        ps = plt.plot(time, data)
+        plt.setp(ps, 'Color', [0.6,0.4,0.3], 'linewidth', 3)
+        plt.grid(True)
+        plt.show()
+
+    def PlotAdjacencyMatrix(self):
+        M = nx.to_numpy_matrix(self._Network)
+        ax1 = plt.subplot(121)
+        p=ax1.pcolorfast(M,cmap='Blues')
+        plt.colorbar(p)
+
+        ax2 = plt.subplot(122)
+        H=np.array(np.ndarray.flatten(M))
+        plt.hist(H[0],20)
+
         plt.show()

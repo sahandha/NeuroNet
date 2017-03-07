@@ -11,7 +11,7 @@ class Brain:
         '''
             This class handles the overarching organization.
         '''
-        self._Neurons      = neurons
+        self._Neurons       = neurons
         self._NeuronsDict   = {}
         self.AddNeuronToDict()
         self._SynapseCount = 0
@@ -80,7 +80,8 @@ class Brain:
         for n in self._Neurons:
             #self.SynapticActivity(n)
             n.Update(i)
-
+        for n in self._Neurons:
+            n._Input = 0
 
     def SynapticActivity(self,neuron):
         randArray = np.random.random(self._NeuronCount)
@@ -90,7 +91,7 @@ class Brain:
             if (randArray[idx] < prob) and (neuron._ID!=n._ID):
                 if neuron._SynapseCount<neuron._SynapseLimit:
                     neuron.AddSynapse(n)
-                    self._SynapseCount += 1
+                    self._SynapseCount += 0.5/self._NeuronCount
                     self.AddEdge(neuron,n)
 
     def DevelopSynapseNetwork(self):

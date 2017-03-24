@@ -71,7 +71,8 @@ class Brain:
     #    return random.random() < probability
 
     def Simulate(self):
-        for i in tnrange(self._TLen,desc='Tot Sim'): #tnrange only works with Jupyter
+        #for i in tnrange(self._TLen,desc='Tot Sim'): #tnrange only works with Jupyter
+        for i in range(self._TLen):
             self.Update(i)
 
     def Update(self,i):
@@ -91,7 +92,7 @@ class Brain:
             if (randArray[idx] < prob) and (neuron._ID!=n._ID):
                 if neuron._SynapseCount<neuron._SynapseLimit:
                     neuron.AddSynapse(n)
-                    self._SynapseCount += 0.5/self._NeuronCount
+                    self._SynapseCount += 1
                     self.AddEdge(neuron,n)
 
     def DevelopSynapseNetwork(self):

@@ -1,5 +1,6 @@
 #! python3
-from GeneralModel import *
+from GeneralModel import GeneralModel
+import numpy as np
 class Neuron(GeneralModel):
     def __init__(self, ID, synapses=[], tstart=0, tend=200, dt=0.1, **params):
         '''
@@ -39,7 +40,6 @@ class Neuron(GeneralModel):
 
     def AddSynapse(self,n):
         try:
-            s0 = self._SynapsedNeuronsDict[n]
             self._SynapsedNeuronsDict[n] += 1
         except:
             self._SynapsedNeuronsDict[n] = 1
@@ -93,15 +93,15 @@ class Neuron(GeneralModel):
 
     def UpdateSynapses(self):
         for n, s in self._SynapsedNeuronsDict.items():
-            delayTime = 2*self._eps*self._Distance[n]*2 #TODO: Units need to be dorted out
+            delayTime = 2*self._eps*self._Distance[n]*2 #TODO: Units need to be sorted out
             delayIdx  = int((self._t-delayTime)/self._dt)
             if delayIdx > 0:
                 input = self._XX[delayIdx,1]
             else:
                 input = 0
-            if (input > 2):
-                s = s/input
-            n._Input += 10*s*self._SynapticStrength*(input-n._V)
+            #if (input > 2):
+            #    s = s/input
+            n._Input += 10*s*self._SynapticStrength*(input) #-n._V)
 
     def Update(self,i):
         #self.StoreInputHistory(i)
@@ -157,8 +157,8 @@ class Neuron(GeneralModel):
         b   = params["b"]
         tau = params["tau"]
 
-        #if self._t > 200*self._eps:
-        #    I=0
+        if self._t > 200*self._eps:
+            I=0
 
         V, w = x[0], x[1]
 

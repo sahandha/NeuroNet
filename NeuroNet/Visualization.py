@@ -1,4 +1,6 @@
 from NeuroNet.Brain import *
+import warnings
+import matplotlib.pylab as plt
 class Visualization:
 
     def __init__(self, network, neurons, synapsecount):
@@ -11,10 +13,22 @@ class Visualization:
         self._NodeLabels = {}
         self._SynapseCountHistory = synapsecount
         self._EdgeLabels = []
+        self._FigureNumber = 1
+
+    def SortNeurons(self):
+        d = []
+
+        for n in self._Neurons:
+            d.append((n,n._x^2+n._y^2))
+
+        sl = sorted(d, key=lambda x: x[1])
+        self._SortedNeurons = [x[0] for x in sl]
 
     def PlotConnectivityProperties(self):
 
         #self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
 
         plt.subplot(131)
         self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
@@ -38,11 +52,13 @@ class Visualization:
         plt.xlabel('Edge weight')
         plt.ylabel('Count')
 
-        plt.show()
+        #plt.show()
 
     def DrawNetwork(self, edgelabels=False):
         warnings.filterwarnings("ignore")
-        fig1 = plt.figure()
+        fig1 = plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
+
         ax = fig1.add_subplot(111, aspect='equal')
         plt.xlim((0,80))
         plt.ylim((0,80))
@@ -71,7 +87,7 @@ class Visualization:
         ax.add_patch(patches.Rectangle((0, 10),10,60,facecolor=[0.1,0.1,0.6],alpha=0.2))
         ax.add_patch(patches.Rectangle((10, 10),60,60,facecolor=[0.1,0.1,0.6],alpha=0.2))
 
-        plt.show()
+        #plt.show()
 
     def ComputeEigenValues(self,matrix="Laplacian",numbertodrop=0):
         if matrix=="Laplacian":
@@ -82,7 +98,9 @@ class Visualization:
         return eigs[0:-numbertodrop]
 
     def PlotEigenValues(self,numbertodrop=0):
-        plt.figure
+
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
 
         try:
             plt.subplot(121)
@@ -110,42 +128,48 @@ class Visualization:
         except:
             print('Something went wrong.')
 
-        plt.show()
+        #plt.show()
 
     def PlotDegreeDistribution(self):
         idegree = list(self._Network.in_degree().values())
         odegree = list(self._Network.out_degree().values())
 
         try:
+            plt.figure(self._FigureNumber)
+            self._FigureNumber += 1
             plt.subplot(131)
-            plt.hist(idegree, max(idegree)/5, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.hist(idegree, int(max(idegree)/2), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('in-degree')
             plt.xlabel('degree')
             plt.ylabel('count')
             plt.subplot(132)
-            plt.hist(odegree, max(odegree)/5, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.hist(odegree, int(max(odegree)/2), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('out-degree')
             plt.xlabel('degree')
             plt.ylabel('count')
             plt.subplot(133)
-            plt.hist(self._DegreeDistribution, max(self._DegreeDistribution)/5, facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
+            plt.hist(self._DegreeDistribution, int(max(self._DegreeDistribution)/2), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('total degree distribution')
             plt.xlabel('degree')
             plt.ylabel('count')
-            plt.show()
+            #plt.show()
         except:
             print("No connections at all")
 
     def PlotSynapseRank(self):
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
         p = plt.plot(self._Neurons[0]._Time,self._SynapseCountHistory)
         plt.setp(p, 'Color', [0.6,0.4,0.5], 'linewidth', 3)
         plt.grid(True)
         plt.ylabel("Count")
         plt.xlabel("Time")
         plt.title('Synapse Count Increase Over Time')
-        plt.show()
+        #plt.show()
 
     def PlotTimeFrequency(self):
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
         time = self._Neurons[0]._Time
         data = np.zeros((len(self._Neurons),len(time)))
 
@@ -158,9 +182,12 @@ class Visualization:
         plt.colorbar(p)
         plt.xlabel('Time (Seconds)')
         plt.ylabel('Neurons')
-        plt.show()
+        #plt.show()
 
     def PlotOutputSignal(self):
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
+
         time = self._Neurons[0]._Time
         data = np.zeros(len(time))
 
@@ -171,9 +198,12 @@ class Visualization:
         ps = plt.plot(time, data)
         plt.setp(ps, 'Color', [0.6,0.4,0.3], 'linewidth', 3)
         plt.grid(True)
-        plt.show()
+        #plt.show()
 
     def PlotAdjacencyMatrix(self):
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
+
         M = nx.to_numpy_matrix(self._Network)
         ax1 = plt.subplot(121)
         p=ax1.pcolorfast(M,cmap='Blues')
@@ -183,4 +213,6 @@ class Visualization:
         H=np.array(np.ndarray.flatten(M))
         plt.hist(H[0],20)
 
+
+    def RenderGraphics(self):
         plt.show()

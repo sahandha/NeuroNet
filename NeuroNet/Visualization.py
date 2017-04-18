@@ -1,6 +1,9 @@
+from operator import itemgetter
 from NeuroNet.Brain import *
 import warnings
 import matplotlib.pylab as plt
+import bokeh.plotting as bk
+import numpy as np
 class Visualization:
 
     def __init__(self, network, neurons, synapsecount):
@@ -14,6 +17,7 @@ class Visualization:
         self._SynapseCountHistory = synapsecount
         self._EdgeLabels = []
         self._FigureNumber = 1
+        self.DistanceSortNeurons()
 
     def SortNeurons(self):
         d = []
@@ -44,6 +48,7 @@ class Visualization:
         plt.title('Distribution of number of synapses formed')
         plt.xlabel('Number of synapses')
         plt.ylabel('Count')
+        plt.xlim( (0, 1200) )
 
         plt.subplot(133)
         weights = [self._Network.get_edge_data(n1,n2,default=0)['weight'] for n1,n2 in self._Network.edges()]
@@ -51,6 +56,7 @@ class Visualization:
         plt.title('Distribution of edge weights')
         plt.xlabel('Edge weight')
         plt.ylabel('Count')
+        plt.xlim( (0, 1200) )
 
         #plt.show()
 
@@ -167,6 +173,12 @@ class Visualization:
         plt.title('Synapse Count Increase Over Time')
         #plt.show()
 
+    def DistanceSortNeurons(self):
+        neurons = []
+        for n in self._Neurons:
+            neurons.append([n, n._x**2 + n._y**2])
+        self._SortedNeurons = sorted(neurons, key=itemgetter(1))
+
     def PlotTimeFrequency(self):
         plt.figure(self._FigureNumber)
         self._FigureNumber += 1
@@ -183,6 +195,51 @@ class Visualization:
         plt.xlabel('Time (Seconds)')
         plt.ylabel('Neurons')
         #plt.show()
+
+    def PlotTimeFrequencyDot(self,cutoff=20,radius=2,plot_height=100,plot_width=300, sorted=False):
+
+        time = self._Neurons[0]._Time
+
+        if sorted:
+            neurons = [row[0] for row in self._SortedNeurons]
+            title = "Firing Pattern of Neurons Sorted by Distance"
+            factors = [str(row[0]._ID) for row in self._SortedNeurons]
+        else:
+            neurons = self._Neurons
+            title = "Firing Pattern of Neurons"
+            factors = [str(n._ID) for n in self._Neurons]
+
+        datax = np.array([])
+        datay = np.array([])
+        for i,n in enumerate(neurons):
+            V = n._XX[:,0]
+            d = time[V>cutoff]
+            datax=np.append(datax, d)
+            datay=np.append(datay, (i+1)*np.ones_like(d))
+
+        p = bk.figure(title=title, y_range=factors, x_axis_label='Time', y_axis_label='Neurons',x_range=(0,time[-1]),plot_height=plot_height,plot_width=plot_width)
+        p.circle(datax,datay,radius=radius, fill_color='darkblue', line_color='darkblue')
+        bk.show(p)
+
+    def PlotTimeFrequencyDot2(self,cutoff=20,radius=2,plot_height=100,plot_width=300, sorted=False):
+        plt.figure(self._FigureNumber)
+        self._FigureNumber += 1
+        time = self._Neurons[0]._Time
+        datax = np.array([])
+        datay = np.array([])
+        if sorted:
+            self.DistanceSortNeurons()
+            neurons = [row[0] for row in self._SortedNeurons]
+        else:
+            neurons = self._Neurons
+
+        for i,n in enumerate(neurons):
+            V = n._XX[:,0]
+            d = time[V>cutoff]
+            datax=np.append(datax, d)
+            datay=np.append(datay, i*np.ones_like(d))
+
+        plt.plot(datax,datay,'o')
 
     def PlotOutputSignal(self):
         plt.figure(self._FigureNumber)

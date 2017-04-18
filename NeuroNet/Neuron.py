@@ -8,6 +8,7 @@ class Neuron(GeneralModel):
         '''
         GeneralModel.__init__(self, Name="Neuron {}".format(ID),tstart=tstart, tend=tend, dt=dt,**params)
         self._ID    = ID
+        self._CellType = 1 # 1 for excitatory, -1 for inhibatory
         self._eps   = params["eps"] # for scaling time.
         self._V     = 0
         self._w     = 0
@@ -19,6 +20,7 @@ class Neuron(GeneralModel):
         self._Models = {}  # remove SIR, Vander-pol and other models.
         self._Models["FittzHuge-Nagamo"] = self.FHNFlow
         self._Models["Simple-Ionic"]     = self.SIFlow
+        self._Models["Morris-Lecar"]     = self.MLFlow
         self._Distance = {}
         self.PlaceNeuron()
         self._SynapsedNeuronsDict = {}
@@ -28,15 +30,15 @@ class Neuron(GeneralModel):
         self._NoiseMean = 0
         self._NoiseSTD = 0.01
         self._Noise = np.random.normal(self._NoiseMean, self._NoiseSTD,len(self._Time))
-        self._SynapticStrength = 1./self._SynapseLimit#random.uniform(0.1,0.11)
+        self._SynapticStrength = 0.01#/self._SynapseLimit#random.uniform(0.1,0.11)
 
     def SetNoise(self,m, v):
         self._NoiseMean = m
         self._NoiseSTD = v
         self._Noise = np.random.normal(self._NoiseMean, self._NoiseSTD,len(self._Time))
+
     def SetSynapseLimit(self, lim):
         self._SynapseLimit = lim
-        self._SynapticStrength = 1./self._SynapseLimit
 
     def AddSynapse(self,n):
         try:
@@ -92,19 +94,24 @@ class Neuron(GeneralModel):
         self._s = s
 
     def UpdateSynapses(self):
+        self._Delay = 0
         for n, s in self._SynapsedNeuronsDict.items():
-            delayTime = 2*self._eps*self._Distance[n]*2 #TODO: Units need to be sorted out
-            delayIdx  = int((self._t-delayTime)/self._dt)
+            delayTime = 2*n._eps*self._Distance[n]*2 #TODO: Units need to be sorted out
+            delayIdx  = int((n._t-delayTime)/n._dt)
             if delayIdx > 0:
-                input = self._XX[delayIdx,1]
+                potential = n._XX[delayIdx,1]
+                if potential > 0:
+                    input = potential
+                else:
+                    input = 0
             else:
                 input = 0
-            #if (input > 2):
-            #    s = s/input
-            n._Input += 10*s*self._SynapticStrength*(input) #-n._V)
+
+            if n._ID != self._ID:
+                self._Input += n._CellType*s*n._SynapticStrength*1/(1+np.exp(-input))
+
 
     def Update(self,i):
-        #self.StoreInputHistory(i)
         self.UpdateSynapses()
         self.UpdateEuler(i)
         self._V = self._X[0]
@@ -112,12 +119,13 @@ class Neuron(GeneralModel):
         if self._V > 1:
             self._ActiveQ = True
         self.AddNoise(i)
+        self.StoreInputHistory(i)
 
     def AddNoise(self,i):
         self._X[1] += self._Noise[i]
 
     def StoreInputHistory(self,i):
-        self._II[i] = self._params["I"] + self._Input
+        self._II[i] = self._Input #+ self._params["I"]
 
     #Coupled Inhibitory Oscillation Model
 
@@ -165,6 +173,67 @@ class Neuron(GeneralModel):
         dV = (V - V**3/3 - w + I + self._Input)/self._eps
         dw = ((V + a - b*w)/tau)/self._eps
         return np.array([dV, dw])
+
+    def MLFlow1(self, t, x, params):
+        I   = params["I"]
+
+        C   = self._params["C"  ]
+        gCa = self._params["gCa"]
+        VCa = self._params["VCa"]
+        gK  = self._params["gK" ]
+        VK  = self._params["VK" ]
+        gL  = self._params["gL" ]
+        VL  = self._params["VL" ]
+
+        V, w = x[0], x[1]
+        dV = (I - gCa*self.m_inf(V)*(V-VCa) - gK*w*(V-VK)-gL*(V-VL))/C
+        dw = self.alpha(V)*(1-w)-self.beta(V)*w
+        return np.array([dV, dw])
+
+    def m_inf(self, v):
+        V1 = self._params["V1"]
+        V3 = self._params["V3"]
+        return 0.5*(1+np.tanh((v-V1)/V3))
+
+    def alpha(self, v):
+        phi = self._params["phi"]
+        V3  = self._params["V3"]
+        V4  = self._params["V4"]
+        return 0.5*phi*np.cosh((v-V3)/(2*V4))*(1+np.tanh((v-V3)/V4))
+
+    def beta(self, v):
+        phi = self._params["phi"]
+        V3  = self._params["V3"]
+        V4  = self._params["V4"]
+        return 0.5*phi*np.cosh((v-V3)/(2*V4))*(1-np.tanh((v-V3)/V4))
+
+    def MLFlow(self, t, x, params):
+        I   = self._params["I"]
+        C   = self._params["C"  ]
+        gCa = self._params["gCa"]
+        VCa = self._params["VCa"]
+        gK  = self._params["gK" ]
+        VK  = self._params["VK" ]
+        gL  = self._params["gL" ]
+        VL  = self._params["VL" ]
+        phi = self._params["phi"]
+        V1  = self._params["V1"]
+        V2  = self._params["V2"]
+        V3  = self._params["V3"]
+        V4  = self._params["V4"]
+
+        if self._t > 250:
+            I = 0
+
+        V, N = x[0], x[1]
+        Mss = 0.5*(1+np.tanh((V-V1)/V2))
+        Nss = 0.5*(1+np.tanh((V-V3)/V4))
+        Tau = 1/(phi*np.cosh((V-V3)/(2*V4)))
+        n   = len(self._SynapsedNeuronsDict)
+        dV = ( I - gL*(V-VL) - gCa*Mss*(V-VCa) - gK*N*(V-VK))/C + self._Input
+        dN = (Nss - N)/Tau
+        return np.array([dV, dN])
+
 
     def Hev(self, x):
         return 0.5 * (np.sign(x) + 1)

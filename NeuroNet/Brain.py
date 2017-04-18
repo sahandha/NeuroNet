@@ -71,18 +71,21 @@ class Brain:
     #    return random.random() < probability
 
     def Simulate(self):
-        #for i in tnrange(self._TLen,desc='Tot Sim'): #tnrange only works with Jupyter
-        for i in range(self._TLen):
+        for i in tnrange(self._TLen,desc='Tot Sim'): #tnrange only works with Jupyter
+        #for i in range(self._TLen):
             self.Update(i)
 
     def Update(self,i):
         self._t += self._dt
         self._SynapseCountHistory.append(self._SynapseCount)
         for n in self._Neurons:
-            #self.SynapticActivity(n)
-            n.Update(i)
-        for n in self._Neurons:
             n._Input = 0
+        for n in self._Neurons:
+            #self.SynapticActivity(n)
+            #n._Input = 0
+            n.Update(i)
+            #n._Input = 0
+
 
     def SynapticActivity(self,neuron):
         randArray = np.random.random(self._NeuronCount)
@@ -95,10 +98,13 @@ class Brain:
                     self._SynapseCount += 1
                     self.AddEdge(neuron,n)
 
-    def DevelopSynapseNetwork(self):
+    def SynapseNetworkEvolve(self):
         #[self.SynapticActivity(n) for n in self._Neurons]
         for n in self._Neurons:
             self.SynapticActivity(n)
+    def DevelopSynapseNetwork(self, n):
+        for i in tnrange(n,desc='Syn Dev'):
+            self.SynapseNetworkEvolve()
 
     def ConstructNetwork(self):
         self._Network      = nx.DiGraph()

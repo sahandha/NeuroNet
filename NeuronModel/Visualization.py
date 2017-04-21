@@ -5,7 +5,7 @@ import networkx as nx
 import numpy as np
 import warnings
 import igraph as ig
-import cairo
+#import cairo
 
 class Visualization:
     def __init__(self,brain):

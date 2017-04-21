@@ -32,6 +32,9 @@ class NeuronModel():
         self.ComputeDistances() #This will result in self_DelayIndx and self._Distance
         # self.DevelopNetwork() #This will result in self._EdgeWieghts = {(n1,n2):w,...}
 
+    def SetStorage(self,s):
+        self._Storage = s
+
     def PlaceNeurons(self):
         for n in range(self._NumberOfNeurons):
             x = 80*np.random.random() #range between 0, 80
@@ -184,13 +187,18 @@ class NeuronModel():
 
         if source=='Jupyter':
             for ii in tnrange(len(self._Time),desc='Tot Sim'):
+                self.WriteData()
                 self.StoreTimeSeriesData(ii)
                 self.updateSynapses(ii)
                 self.AddNoise(ii)
                 self.UpdateRK(ii);
         else:
             for ii in trange(len(self._Time)):
+                self.WriteData()
                 self.StoreTimeSeriesData(ii)
                 self.updateSynapses(ii)
                 self.AddNoise(ii)
                 self.UpdateRK(ii);
+
+    def WriteData(self):
+        self._Storage.WriteLine()

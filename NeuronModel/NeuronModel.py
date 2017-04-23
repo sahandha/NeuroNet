@@ -1,7 +1,6 @@
 #! python3
 import numpy as np
 import itertools as it
-from tqdm import trange, tnrange, tqdm_notebook, tqdm
 
 class NeuronModel():
 
@@ -79,7 +78,7 @@ class NeuronModel():
     def DevelopNetwork(self,n,source='Jupyter'):
         x = 0;
         if source=='Jupyter':
-            for t in tnrange(n,desc='Net Dev'):
+            for t in range(n):
                 for key in self._SynapseWeight.keys():
                     if self._SynapseCount[key[0]] < self._SynapseLimit and self._SynapseCount[key[1]] < self._SynapseLimit:
                         if np.random.random()<self._SynapseProbability[key]:
@@ -92,7 +91,7 @@ class NeuronModel():
 
 
         else:
-            for t in trange(n):
+            for t in range(n): #trange(n):
                 for key in self._SynapseWeight.keys():
                     if np.random.random()<self._SynapseProbability[key]:
                         if self._SynapseWeight[key] < self._SynapseStrengthLimit:
@@ -102,7 +101,7 @@ class NeuronModel():
                             self._SynapseCount[key[1]]+=1
 
     def Initialize(self):
-        self._X    = np.concatenate((np.random.normal(-40,0,size=self._NumberOfNeurons), np.zeros(self._NumberOfNeurons)))
+        self._X    = np.concatenate((np.random.normal(-40,1,size=self._NumberOfNeurons), np.zeros(self._NumberOfNeurons)))
         self._dX   = np.zeros_like(self._X)
         self._Time = np.arange(self._tstart,self._tend,self._dt)
         self._dim  = len(self._X)
@@ -186,14 +185,15 @@ class NeuronModel():
         self.Initialize()
 
         if source=='Jupyter':
-            for ii in tnrange(len(self._Time),desc='Tot Sim'):
+            for ii in range(len(self._Time)):
                 self.WriteData()
                 self.StoreTimeSeriesData(ii)
                 self.updateSynapses(ii)
                 self.AddNoise(ii)
                 self.UpdateRK(ii);
         else:
-            for ii in trange(len(self._Time)):
+            for ii in range(len(self._Time)):
+                print(self._t)
                 self.WriteData()
                 self.StoreTimeSeriesData(ii)
                 self.updateSynapses(ii)

@@ -4,7 +4,7 @@ class Storage:
     def __init__(self, brain, DataFolder, NeuronsPerFile):
         self._Brain         = brain
         self._DataFolder    = DataFolder
-        self._NumberOfFiles = int(self._Brain._NumberOfNeurons/NeuronsPerFile)
+        self._NumberOfFiles = max(1,int(self._Brain._NumberOfNeurons/NeuronsPerFile))
         self._FileNames     = {}
         self.AssembleFileNames()
 

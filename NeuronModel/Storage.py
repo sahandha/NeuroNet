@@ -1,9 +1,11 @@
 import json
-
+import os
 class Storage:
     def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None):
         self._Brain          = brain
         self._DataFolder     = DataFolder
+        if not os.path.exists(self._DataFolder):
+            os.makedirs(self._DataFolder)
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
         self._FullData=[]
@@ -30,7 +32,7 @@ class Storage:
         else:
             self._NeuronsPerFile  = NeuronsPerFile
             self._NumberOfNeurons = self._Brain._NumberOfNeurons
-            self._NumberOfFiles   = max(1,int(self._Brain._NumberOfNeurons/NeuronsPerFile))
+            self._NumberOfFiles   = max(1,round(0.5+self._Brain._NumberOfNeurons/NeuronsPerFile))
             self._Parameters      = self._Brain._Params
 
     def AssembleFileNames(self):
@@ -53,11 +55,13 @@ class Storage:
 
     def WriteParameters(self):
         with open(self._DataFolder+"/Parameters.json", 'w') as f:
-            self._Parameters["Neurons Per File"] = self._NeuronsPerFile
-            self._Parameters["Number of Files"]  = self._NumberOfFiles
-            self._Parameters["Data Folder"] = self._DataFolder
-            self._Parameters["Number of Neurons"] = self._Brain._NumberOfNeurons
+            self._Parameters["ConnectionScale"] = self._Brain._ConnectionScale
+            self._Parameters["NetworkDevel"]    = self._Brain._NetworkDevel
+            self._Parameters["NeuronsPerFile"]  = self._NeuronsPerFile
+            self._Parameters["NumberOfFiles"]   = self._NumberOfFiles
+            self._Parameters["DataFolder"]      = self._DataFolder
+            self._Parameters["NumberOfNeurons"] = self._Brain._NumberOfNeurons
             json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '))
 
-    def ReadData(self):
-        for file in self._FileNames[]
+    #def ReadData(self):
+    #    for file in self._FileNames[]

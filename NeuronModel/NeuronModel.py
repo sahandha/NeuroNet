@@ -77,6 +77,7 @@ class NeuronModel():
 
     def DevelopNetwork(self,n,source='Jupyter'):
         x = 0;
+        self._NetworkDevel = n
         if source=='Jupyter':
             for t in range(n):
                 for key in self._SynapseWeight.keys():
@@ -193,7 +194,6 @@ class NeuronModel():
                 self.UpdateRK(ii);
         else:
             for ii in range(len(self._Time)):
-                print(self._t)
                 self.WriteData()
                 self.StoreTimeSeriesData(ii)
                 self.updateSynapses(ii)

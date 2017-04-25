@@ -70,7 +70,7 @@ def main(argv):
 
 
 
-        brain = NeuronModel(N=N, tend=2000, I=0, connectionscale=connectionscale, synapselimit=synapselimit, synapsestrengthlimit=synapselimit,
+        brain = NeuronModel(N=N, tend=20, I=0, connectionscale=connectionscale, synapselimit=synapselimit, synapsestrengthlimit=synapselimit,
                         C=C,gL=gL,gCa=gCa,gK=gK,VL=VL,VCa=VCa,VK=VK,V1=V1,V2=V2,V3=V3,V4=V4,phi=phi,
                         I_v=0.1,C_v=C_v,gL_v=gL_v,gCa_v=gCa_v,gK_v=gK_v,VL_v=VL_v,VCa_v=VCa_v,VK_v=VK_v,V1_v=V1_v,V2_v=V2_v,V3_v=V3_v,V4_v=V4_v,phi_v=phi_v)
 
@@ -82,6 +82,13 @@ def main(argv):
         brain.SetStorage(storage)
 
         brain.Simulate(source='script')
+
+
+def DataFromFile(filename):
+    storage = Storage.FromFile(filename)
+    #storage.ReadData()
+    #brain = NeuronModel(N=storage._NumberOfNeurons, tend, I=0, connectionscale=)
+
 
 if __name__=='__main__':
     main(sys.argv[1:])

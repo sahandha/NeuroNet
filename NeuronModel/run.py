@@ -17,13 +17,15 @@ def main(argv):
     NetworkDevel    = 120
 
     try:
-        opts, args = getopt.getopt(argv,"hF:O:N:S:P:D:")
+        opts, args = getopt.getopt(argv,"hF:O:N:S:P:D:L:")
     except getopt.GetoptError:
         print(
         '''python3 run.py -options \n
         -h:   Help
         -F:   Specify the data file from which to build storage object.
         -O:   Data folder within which data is to be stored.
+        -N:   Number of neurons
+        -L:   Synapse limit
         -S:   Connection Scale
         -P:   Number of neurons per file.
         -D:   Network Development period.
@@ -36,6 +38,8 @@ def main(argv):
             -h:   Help
             -F:   Specify the data file from which to build storage object.
             -O:   Data folder within which data is to be stored.
+            -N:   Number of neurons
+            -L:   Synapse limit
             -S:   Connection Scale
             -D:   Network development period
             -P:   Number of neurons per file.

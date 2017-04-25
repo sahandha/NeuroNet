@@ -2,14 +2,15 @@ import json
 import os
 import numpy as np
 class Storage:
-    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None):
+    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, **kwargs):
         self._Brain          = brain
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
             os.makedirs(self._DataFolder)
+        self._ParameterFile = kwargs["ParameterFile"]
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
-        self._FullData=np.array([])
+        self._FullData=[]
         self.AssembleFileNames()
 
 
@@ -24,14 +25,21 @@ class Storage:
         ConnectionScale = data["ConnectionScale"]
         NetworkDevel    = data["NetworkDevel"]
 
-        return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons)
+        return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons, ParameterFile=name)
 
     def GetParams(self,NumberOfNeurons,NumberOfFiles,NeuronsPerFile):
+        with open(name) as data_file:
+            data = json.load(self._ParameterFile)
+        self._tend = data["tend"]
+        self._dt   = data["dt"]
+        self._ConnectionScale   = data["ConnectionScale"]
+        self._SynapseLimit   = data["SynapseLimit"]
         if self._Brain == None:
             self._NeuronsPerFile = NeuronsPerFile
             self._NumberOfNeurons = NumberOfNeurons
             self._NumberOfFiles   = NumberOfFiles
             self._Parameters      = {}
+
         else:
             self._NeuronsPerFile  = NeuronsPerFile
             self._NumberOfNeurons = self._Brain._NumberOfNeurons
@@ -74,11 +82,15 @@ class Storage:
         with open(filename, 'r') as f:
             while True:
                 line     = f.readline()
-                dataline = list(map(float,line.rstrip(', \n').split(',')))
+                dataline = list(map(float,line.rstrip(', \n').lstrip('').split(',')))
                 filedata.append(dataline)
         return filedata
 
     def ReadData(self):
-        for file in self._FileNames[]:
+        for i,file in enumerate(self._FileNames[]):
             filedata=np.array(self.ReadFile())
-            #np.concatenate((self._FullData,filedata),axis=1)
+            if i == 0:
+                self._FullData = filedata
+                time = [row[0] for row in self._FullData]
+            else:
+                self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]

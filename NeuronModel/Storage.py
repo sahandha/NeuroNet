@@ -7,7 +7,6 @@ class Storage:
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
             os.makedirs(self._DataFolder)
-        #self._ParameterFile = kwargs["ParameterFile"]
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
         self._FullData=[]
@@ -92,6 +91,6 @@ class Storage:
             filedata=np.array(self.ReadFile())
             if i == 0:
                 self._FullData = filedata
-                time = [row[0] for row in self._FullData]
+                self._time = [row[0] for row in self._FullData]
             else:
                 self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]

@@ -94,5 +94,6 @@ elif [$1 -eq 31]
 then
 python3 run.py -N 1000 -L 200 -S 20 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D220
 elif [$1 -eq 32]
+then
 python3 run.py -N 1000 -L 200 -S 40 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D220
 fi

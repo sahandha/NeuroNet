@@ -1,0 +1,42 @@
+#!/bin/bash
+
+
+python3 run.py -N 1000 -L 200 -S  5 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D10
+python3 run.py -N 1000 -L 200 -S 10 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D10
+python3 run.py -N 1000 -L 200 -S 20 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D10
+python3 run.py -N 1000 -L 200 -S 40 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D10
+
+python3 run.py -N 1000 -L 200 -S  5 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D40
+python3 run.py -N 1000 -L 200 -S 10 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D40
+python3 run.py -N 1000 -L 200 -S 20 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D40
+python3 run.py -N 1000 -L 200 -S 40 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D40
+
+python3 run.py -N 1000 -L 200 -S  5 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D70
+python3 run.py -N 1000 -L 200 -S 10 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D70
+python3 run.py -N 1000 -L 200 -S 20 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D70
+python3 run.py -N 1000 -L 200 -S 40 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D70
+
+python3 run.py -N 1000 -L 200 -S  5 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D100
+python3 run.py -N 1000 -L 200 -S 10 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D100
+python3 run.py -N 1000 -L 200 -S 20 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D100
+python3 run.py -N 1000 -L 200 -S 40 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D100
+
+python3 run.py -N 1000 -L 200 -S  5 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D140
+python3 run.py -N 1000 -L 200 -S 10 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D140
+python3 run.py -N 1000 -L 200 -S 20 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D140
+python3 run.py -N 1000 -L 200 -S 40 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D140
+
+python3 run.py -N 1000 -L 200 -S  5 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D180
+python3 run.py -N 1000 -L 200 -S 10 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D180
+python3 run.py -N 1000 -L 200 -S 20 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D180
+python3 run.py -N 1000 -L 200 -S 40 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D180
+
+python3 run.py -N 1000 -L 200 -S  5 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D200
+python3 run.py -N 1000 -L 200 -S 10 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D200
+python3 run.py -N 1000 -L 200 -S 20 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D200
+python3 run.py -N 1000 -L 200 -S 40 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D200
+
+python3 run.py -N 1000 -L 200 -S  5 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D220
+python3 run.py -N 1000 -L 200 -S 10 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D220
+python3 run.py -N 1000 -L 200 -S 20 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D220
+python3 run.py -N 1000 -L 200 -S 40 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D220

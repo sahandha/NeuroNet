@@ -4,3 +4,5 @@
 __*__
 Documentation
 Data
+*.err
+*.out

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-#PBS -l nodes=1:ppn=10
-#PBS -l walltime=02:00:00
+#PBS -l nodes=1:ppn=32
+#PBS -l walltime=03:00:00
 #PBS -N NeuroNet
 #PBS -M sahandha@gmail.com
 #PBS -e $PBS_JOBID.err
@@ -21,4 +21,27 @@ aprun -n 1 ./script 1:
       -n 1 ./script 7:
       -n 1 ./script 8:
       -n 1 ./script 9:
+      -n 1 ./script 10:
+      -n 1 ./script 11:
+      -n 1 ./script 12:
+      -n 1 ./script 13:
+      -n 1 ./script 14:
+      -n 1 ./script 15:
+      -n 1 ./script 16:
+      -n 1 ./script 17:
+      -n 1 ./script 18:
+      -n 1 ./script 19:
+      -n 1 ./script 20:
+      -n 1 ./script 21:
+      -n 1 ./script 22:
+      -n 1 ./script 23:
+      -n 1 ./script 24:
+      -n 1 ./script 25:
+      -n 1 ./script 26:
+      -n 1 ./script 27:
+      -n 1 ./script 28:
+      -n 1 ./script 29:
+      -n 1 ./script 30:
+      -n 1 ./script 31:
+      -n 1 ./script 32:
 

@@ -1,5 +1,6 @@
 import json
 import os
+import numpy as np
 class Storage:
     def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None):
         self._Brain          = brain
@@ -8,7 +9,7 @@ class Storage:
             os.makedirs(self._DataFolder)
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
-        self._FullData=[]
+        self._FullData=np.array([])
         self.AssembleFileNames()
 
 
@@ -16,10 +17,12 @@ class Storage:
     def FromFile(cls, name):
         with open(name) as data_file:
             data = json.load(data_file)
-        NeuronsPerFile  = data["Neurons Per File"]
-        DataFolder      = data["Data Folder"]
-        NumberOfFiles   = data["Number of Files"]
-        NumberOfNeurons = data["Number of Neurons"]
+        NeuronsPerFile  = data["NeuronsPerFile"]
+        DataFolder      = data["DataFolder"]
+        NumberOfFiles   = data["NumberOfFiles"]
+        NumberOfNeurons = data["NumberOfNeurons"]
+        ConnectionScale = data["ConnectionScale"]
+        NetworkDevel    = data["NetworkDevel"]
 
         return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons)
 
@@ -44,6 +47,7 @@ class Storage:
         l = "{:.3f}".format(self._Brain._t) + ', '
         for i in range(fileID*self._NeuronsPerFile,min((fileID+1)*self._NeuronsPerFile,self._Brain._NumberOfNeurons)):
                 l += "{:.3f}".format(self._Brain._X[i]) + ', '
+        l.rstrip(', ')
         l += '\n'
         return l
 
@@ -55,6 +59,8 @@ class Storage:
 
     def WriteParameters(self):
         with open(self._DataFolder+"/Parameters.json", 'w') as f:
+            self._Parameters["tend"]            = self._Brain._tend
+            self._Parameters["dt"]              = self._Brain._dt
             self._Parameters["ConnectionScale"] = self._Brain._ConnectionScale
             self._Parameters["NetworkDevel"]    = self._Brain._NetworkDevel
             self._Parameters["NeuronsPerFile"]  = self._NeuronsPerFile
@@ -63,5 +69,16 @@ class Storage:
             self._Parameters["NumberOfNeurons"] = self._Brain._NumberOfNeurons
             json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '))
 
-    #def ReadData(self):
-    #    for file in self._FileNames[]
+    def ReadFile(self, filename):
+        filedata = []
+        with open(filename, 'r') as f:
+            while True:
+                line     = f.readline()
+                dataline = list(map(float,line.rstrip(', \n').split(',')))
+                filedata.append(dataline)
+        return filedata
+
+    def ReadData(self):
+        for file in self._FileNames[]:
+            filedata=np.array(self.ReadFile())
+            #np.concatenate((self._FullData,filedata),axis=1)

@@ -7,7 +7,8 @@ class Storage:
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
             os.makedirs(self._DataFolder)
-        self._ParameterFile = kwargs["ParameterFile"]
+        print(kwargs)
+        #self._ParameterFile = kwargs["ParameterFile"]
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
         self._FullData=[]
@@ -28,13 +29,14 @@ class Storage:
         return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons, ParameterFile=name)
 
     def GetParams(self,NumberOfNeurons,NumberOfFiles,NeuronsPerFile):
-        with open(name) as data_file:
-            data = json.load(self._ParameterFile)
-        self._tend = data["tend"]
-        self._dt   = data["dt"]
-        self._ConnectionScale   = data["ConnectionScale"]
-        self._SynapseLimit   = data["SynapseLimit"]
+
         if self._Brain == None:
+            with open(name) as data_file:
+                data = json.load(self._ParameterFile)
+            self._tend = data["tend"]
+            self._dt   = data["dt"]
+            self._ConnectionScale   = data["ConnectionScale"]
+            self._SynapseLimit   = data["SynapseLimit"]
             self._NeuronsPerFile = NeuronsPerFile
             self._NumberOfNeurons = NumberOfNeurons
             self._NumberOfFiles   = NumberOfFiles

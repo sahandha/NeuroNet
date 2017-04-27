@@ -84,9 +84,9 @@ def main(argv):
         brain.Simulate(source='script')
 
 
-def DataFromFile(filename):
-    storage = Storage.FromFile(filename)
-    storage.ReadData()
+#def DataFromFile(filename):
+#    storage = Storage.FromFile(filename)
+#    storage.ReadData()
     #brain = NeuronModel(N=storage._NumberOfNeurons, tend=storage._tend, I=0, connectionscale=self._ConnectionScale, synapselimit=storage._SynapseLimit, synapsestrengthlimit=storage._SynapseLimit)
 
 

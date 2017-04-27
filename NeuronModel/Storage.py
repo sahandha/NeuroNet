@@ -2,12 +2,11 @@ import json
 import os
 import numpy as np
 class Storage:
-    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, **kwargs):
+    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None):
         self._Brain          = brain
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
             os.makedirs(self._DataFolder)
-        print(kwargs)
         #self._ParameterFile = kwargs["ParameterFile"]
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}

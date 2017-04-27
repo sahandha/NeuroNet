@@ -86,11 +86,11 @@ class Storage:
                 filedata.append(dataline)
         return filedata
 
-    def ReadData(self):
-        for i,file in enumerate(self._FileNames[]):
-            filedata=np.array(self.ReadFile())
-            if i == 0:
-                self._FullData = filedata
-                time = [row[0] for row in self._FullData]
-            else:
-                self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]
+    #def ReadData(self):
+    #    for i,file in enumerate(self._FileNames[]):
+    #        filedata=np.array(self.ReadFile())
+    #        if i == 0:
+    #            self._FullData = filedata
+    #            time = [row[0] for row in self._FullData]
+    #        else:
+    #            self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]

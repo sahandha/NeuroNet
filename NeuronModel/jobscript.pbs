@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-#PBS -l nodes=1:ppn=1
+#PBS -l nodes=1:ppn=10
 #PBS -l walltime=02:00:00
 #PBS -N NeuroNet
 #PBS -M sahandha@gmail.com
@@ -12,4 +12,13 @@ cd $PBS_O_WORKDIR
 module load bwpy
 
 
-aprun -n 1 ./script
+aprun -n 1 ./script 1:
+      -n 1 ./script 2:
+      -n 1 ./script 3:
+      -n 1 ./script 4:
+      -n 1 ./script 5:
+      -n 1 ./script 6:
+      -n 1 ./script 7:
+      -n 1 ./script 8:
+      -n 1 ./script 9:
+

@@ -7,7 +7,7 @@ def main(argv):
 
     # Defaults
     fromFile     = False
-    fileName     = ''
+    fileName     = '/Users/sahand/Research/NeuroNet/Data/Parameters.json'
     outputFolder = '/Users/sahand/Research/NeuroNet/Data'
 
     connectionscale = 40
@@ -63,6 +63,9 @@ def main(argv):
 
     if fromFile:
         storage = Storage.FromFile(fileName)
+        storage.ReadData()
+        brain = NeuronModel(N=storage._NumberOfNeurons, tend=storage._tend, I=0, connectionscale=storage._ConnectionScale, synapselimit=storage._SynapseLimit, synapsestrengthlimit=storage._SynapseLimit)
+
     else:
         C,gL,gCa,gK,VL,VCa,VK,V1,V2,V3,V4,phi=20,2.0,4.4,8,-60,120,-84,-1.2,18.0,2.0,30.0,0.04
         C_v,gL_v,gCa_v,gK_v,VL_v,VCa_v,VK_v,V1_v,V2_v,V3_v,V4_v,phi_v=1,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01
@@ -77,12 +80,6 @@ def main(argv):
         brain.SetStorage(storage)
 
         brain.Simulate(source='script')
-
-
-def DataFromFile(filename):
-    storage = Storage.FromFile(filename)
-    storage.ReadData()
-    brain = NeuronModel(N=storage._NumberOfNeurons, tend=storage._tend, I=0, connectionscale=storage._ConnectionScale, synapselimit=storage._SynapseLimit, synapsestrengthlimit=storage._SynapseLimit)
 
 
 if __name__=='__main__':

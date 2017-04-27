@@ -2,11 +2,12 @@ import json
 import os
 import numpy as np
 class Storage:
-    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None):
+    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, ParameterFileName=None):
         self._Brain          = brain
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
             os.makedirs(self._DataFolder)
+        self._ParameterFileName = ParameterFileName
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
         self._FullData=[]
@@ -24,13 +25,13 @@ class Storage:
         ConnectionScale = data["ConnectionScale"]
         NetworkDevel    = data["NetworkDevel"]
 
-        return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons, ParameterFile=name)
+        return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons, ParameterFileName=name)
 
     def GetParams(self,NumberOfNeurons,NumberOfFiles,NeuronsPerFile):
 
         if self._Brain == None:
-            with open(name) as data_file:
-                data = json.load(self._ParameterFile)
+            with open(self._ParameterFileName) as data_file:
+                data = json.load(data_file)
             self._tend = data["tend"]
             self._dt   = data["dt"]
             self._ConnectionScale   = data["ConnectionScale"]

@@ -39,8 +39,7 @@ class Storage:
             self._NeuronsPerFile = NeuronsPerFile
             self._NumberOfNeurons = NumberOfNeurons
             self._NumberOfFiles   = NumberOfFiles
-            self._Parameters      = {}
-
+            self._Parameters      = data
         else:
             self._NeuronsPerFile  = NeuronsPerFile
             self._NumberOfNeurons = self._Brain._NumberOfNeurons
@@ -76,22 +75,30 @@ class Storage:
             self._Parameters["NumberOfFiles"]   = self._NumberOfFiles
             self._Parameters["DataFolder"]      = self._DataFolder
             self._Parameters["NumberOfNeurons"] = self._Brain._NumberOfNeurons
+            self._Parameters["SynapseLimit"]    = self._Brain._SynapseLimit
             json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '))
+
+    def WriteNetwork(self):
+        data = {}
+        data["Coordinate"] = {i:list(n) for i,n in enumerate(self._Brain._NeuronPosition)}
+        data["Connections"] = {str(key):value for key,value in zip(self._Brain._SynapseWeight.keys(), self._Brain._SynapseWeight.values())}
+
+        with open(self._DataFolder+"/Network.json", 'w') as f:
+            json.dump(data, f, indent=4, separators=(',', ': '))
 
     def ReadFile(self, filename):
         filedata = []
         with open(filename, 'r') as f:
-            while True:
-                line     = f.readline()
+            for line in f:
                 dataline = list(map(float,line.rstrip(', \n').lstrip('').split(',')))
                 filedata.append(dataline)
         return filedata
 
     def ReadData(self):
-        for i,file in enumerate(self._FileNames):
-            filedata=np.array(self.ReadFile())
-            if i == 0:
-                self._FullData = filedata
+        for fileID in range(self._NumberOfFiles):
+            filedata=self.ReadFile(self._FileNames[fileID])
+            if fileID == 0:
+                self._FullData = [row[1:] for row in filedata]
                 self._time = [row[0] for row in self._FullData]
             else:
                 self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]

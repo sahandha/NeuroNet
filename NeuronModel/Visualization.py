@@ -47,9 +47,9 @@ class Visualization:
         self._vis_style['vertex_color'] = 'blue'
         self._vis_style["vertex_label_color"] = 'white'
 
-    def PlotState(self,neurons=[0]):
-        self._FigNum += 1
+    def PlotState(self,neurons=[0], render="Display"):
         plt.figure(self._FigNum)
+        self._FigNum += 1
         for idx, n in enumerate(neurons):
             plt.subplot(len(neurons),1,idx+1)
             p = plt.plot(self._Brain._Time,self._Brain._VV[:,n])
@@ -58,12 +58,15 @@ class Visualization:
             plt.grid(True)
             plt.xlabel("Time")
             plt.ylabel("Neuron {}".format(n))
-        plt.show()
+        if render == "Display":
+            plt.show()
+        else:
+            plt.savefig(render, bbox_inches='tight')
 
-    def DrawNetwork(self, edgelabels=False):
+    def DrawNetwork(self, edgelabels=False, render="Display"):
         warnings.filterwarnings("ignore")
-        fig1 = plt.figure(2) #self._FigureNumber)
-        #self._FigureNumber += 1
+        fig1=plt.figure(self._FigNum)
+        self._FigNum += 1
         ax = fig1.add_subplot(111, aspect='equal')
         plt.xlim((0,80))
         plt.ylim((0,80))
@@ -86,7 +89,10 @@ class Visualization:
         ax.add_patch(patches.Rectangle((10, 70),60,10,facecolor=[0.1,0.1,0.6],alpha=0.2))
         ax.add_patch(patches.Rectangle((0, 10),10,60,facecolor=[0.1,0.1,0.6],alpha=0.2))
         ax.add_patch(patches.Rectangle((10, 10),60,60,facecolor=[0.1,0.1,0.6],alpha=0.2))
-        plt.show()
+        if render == "Display":
+            plt.show()
+        else:
+            plt.savefig(render, bbox_inches='tight')
 
     def SortNeurons(self):
         d = []
@@ -95,7 +101,7 @@ class Visualization:
         sl = sorted(d, key=lambda x: x[1])
         self._SortedNeurons = [x[0] for x in sl]
 
-    def PlotTimeFrequencyDot(self,cutoff=20,radius=2,plot_height=100,plot_width=300, sorted=False):
+    def PlotTimeFrequencyDot(self,cutoff=20,radius=2,plot_height=100,plot_width=300, sorted=False, render="Display"):
         time = self._Brain._Time
         if sorted:
             #neurons = [row[0] for row in self._SortedNeurons]
@@ -115,9 +121,43 @@ class Visualization:
             datay=np.append(datay, (i+1)*np.ones_like(d))
         p = bk.figure(title=title, y_range=factors, x_axis_label='Time', y_axis_label='Neurons',x_range=(0,time[-1]),plot_height=plot_height,plot_width=plot_width)
         p.circle(datax,datay,radius=radius, fill_color='darkblue', line_color='darkblue')
-        bk.show(p)
+        if render == "Display":
+            bk.show(p)
+        else:
+            bk.output_file(render)
+            bk.save(p)
 
-    def PlotTimeFrequency(self):
+    def PlotTimeFrequencyDotPLT(self,cutoff=20, sorted=False, render="Display"):
+        time = self._Brain._Time
+        if sorted:
+            #neurons = [row[0] for row in self._SortedNeurons]
+            neurons = self._SortedNeurons
+            title = "Firing Pattern of Neurons Sorted by Distance"
+            factors = [str(n) for n in self._SortedNeurons]
+        else:
+            neurons = self._Neurons
+            title = "Firing Pattern of Neurons"
+            factors = [str(n) for n in self._Neurons]
+        datax = np.array([])
+        datay = np.array([])
+        for i,n in enumerate(neurons):
+            V = self._Brain._VV[:,n]
+            d = time[V>cutoff]
+            datax=np.append(datax, d)
+            datay=np.append(datay, (i+1)*np.ones_like(d))
+
+        self._FigNum += 1
+        fig = plt.figure(self._FigNum)
+        ax = fig.add_subplot(111)
+
+        p = plt.scatter(datax,datay)
+        ax.set_aspect(0.5)
+        if render == "Display":
+            plt.show()
+        else:
+            plt.savefig(render, bbox_inches='tight')
+
+    def PlotTimeFrequency(self, render="Display"):
         self._FigNum += 1
         plt.figure(self._FigNum)
         time = self._Brain._Time
@@ -130,33 +170,49 @@ class Visualization:
         plt.colorbar(p)
         plt.xlabel('Time (Seconds)')
         plt.ylabel('Neurons')
-        plt.show()
+        if render == "Display":
+            plt.show()
+        else:
+            plt.savefig(render, bbox_inches='tight')
 
-    def PlotAdjacencyMatrix(self):
+    def PlotAdjacencyMatrix(self, render="Display"):
         plt.figure(self._FigNum)
         self._FigNum += 1
+        fig = plt.figure(self._FigNum,figsize=(15,4))
+
         M = nx.to_numpy_matrix(self._Network)
         ax1 = plt.subplot(131)
         p=ax1.pcolorfast(M,cmap='Blues')
         plt.colorbar(p)
+        plt.title('Unordered')
+
+
         ax2 = plt.subplot(132)
         p=ax2.pcolorfast(self.ComputeSortedAdjacencyMatrix(),cmap='Blues')
         ax2.set_xticks(self._SortedNeurons)
         ax2.set_yticks(self._SortedNeurons)
         plt.colorbar(p)
+        plt.title('Ordered')
+
+
         ax3 = plt.subplot(133)
         H=np.array(np.ndarray.flatten(M))
         plt.hist(H[0],20)
-        plt.show()
+        plt.title('Weight Distribution')
+        #plt.tight_layout(pad=0.5)
+        if render == "Display":
+            plt.show()
+        else:
+            plt.savefig(render, bbox_inches='tight')
 
     def ComputeSortedAdjacencyMatrix(self):
         M = np.array([np.array([self._Brain._SynapseWeight[(n1,n2)]/self._Brain._SynapseStrengthLimit for n2 in self._SortedNeurons]) for n1 in self._SortedNeurons])
         return M
 
-    def PlotConnectivityProperties(self):
+    def PlotConnectivityProperties(self, render="Display"):
         #self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
         self._FigNum += 1
-        plt.figure(self._FigNum)
+        plt.figure(self._FigNum,figsize=(15,4))
 
         plt.subplot(131)
         self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
@@ -179,14 +235,19 @@ class Visualization:
         plt.xlabel('Edge weight')
         plt.ylabel('Count')
         plt.xlim( (0, self._Brain._SynapseStrengthLimit) )
-        plt.show()
 
-    def PlotDegreeDistribution(self):
+        #plt.tight_layout(pad=0.5)
+        if render == "Display":
+            plt.show()
+        else:
+            plt.savefig(render, bbox_inches='tight')
+
+    def PlotDegreeDistribution(self, render="Display"):
         idegree = list(self._Network.in_degree().values())
         odegree = list(self._Network.out_degree().values())
+        plt.figure(self._FigNum, figsize=(15,4))
+        self._FigNum += 1
         try:
-            self._FigNum += 1
-            plt.figure(self._FigNum)
             plt.subplot(131)
             plt.hist(idegree, int(max(idegree)/2), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('in-degree')
@@ -202,7 +263,11 @@ class Visualization:
             plt.title('total degree distribution')
             plt.xlabel('degree')
             plt.ylabel('count')
-            plt.show()
+            #plt.tight_layout(pad=0.5)
+            if render == "Display":
+                plt.show()
+            else:
+                plt.savefig(render, bbox_inches='tight')
         except:
             print("No connections at all")
 

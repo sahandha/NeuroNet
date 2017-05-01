@@ -90,8 +90,13 @@ class Storage:
         filedata = []
         with open(filename, 'r') as f:
             for line in f:
-                dataline = list(map(float,line.rstrip(', \n').lstrip('').split(',')))
-                filedata.append(dataline)
+                ld = []
+                dataline = line.rstrip(', \n').lstrip(' ').split(',')
+                for data in dataline:
+                    if data == 'none':
+                        data = '0'
+                    ld.append(float(data))
+                filedata.append(ld)
         return filedata
 
     def ReadData(self):
@@ -108,4 +113,4 @@ class Storage:
             data = json.load(data_file)
 
         self._Brain._SynapseWeight = {tuple(map(int,key.strip("()").split(","))):value for key,value in data['Connections'].items()}
-        self._Brain._NeuronPosition = [data['Coordinate'][str(i)] for i in range(self._Brain._NumberOfNeurons)]
+        self._Brain._NeuronPosition = [data['Coordinate'][str(i)] for i in range(self._NumberOfNeurons)]

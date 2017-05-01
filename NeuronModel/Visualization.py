@@ -150,7 +150,7 @@ class Visualization:
         fig = plt.figure(self._FigNum)
         ax = fig.add_subplot(111)
 
-        p = plt.scatter(datax,datay)
+        p = plt.scatter(datax,datay,s=1)
         ax.set_aspect(0.5)
         if render == "Display":
             plt.show()

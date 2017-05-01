@@ -102,3 +102,10 @@ class Storage:
                 self._time = [row[0] for row in self._FullData]
             else:
                 self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]
+
+    def ReadNetworkData(self, filename):
+        with open(filename) as data_file:
+            data = json.load(data_file)
+
+        self._Brain._SynapseWeight = {tuple(map(int,key.strip("()").split(","))):value for key,value in data['Connections'].items()}
+        self._Brain._NeuronPosition = [data['Coordinate'][str(i)] for i in range(self._Brain._NumberOfNeurons)]

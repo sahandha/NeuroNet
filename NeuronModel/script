@@ -2,98 +2,98 @@
 
 if [ $1 -eq 1 ]
 then
-    python3 run.py -N 1000 -L 300 -S  5 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D10
+    python3 run.py -N 1000 -L 200 -S  5 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D10
 elif [ $1 -eq 2 ]
 then
-    python3 run.py -N 1000 -L 300 -S 10 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D10
+    python3 run.py -N 1000 -L 200 -S 10 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D10
 elif [ $1 -eq 3 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D10
+python3 run.py -N 1000 -L 200 -S 20 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D10
 elif [ $1 -eq 4 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D10
+python3 run.py -N 1000 -L 200 -S 40 -D 10 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D10
 elif [ $1 -eq 5 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D40
+python3 run.py -N 1000 -L 200 -S  5 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D40
 elif [ $1 -eq 6 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D40
+python3 run.py -N 1000 -L 200 -S 10 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D40
 elif [ $1 -eq 7 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D40
+python3 run.py -N 1000 -L 200 -S 20 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D40
 elif [ $1 -eq 8 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D40
+python3 run.py -N 1000 -L 200 -S 40 -D 40 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D40
 elif [ $1 -eq 9 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D70
+python3 run.py -N 1000 -L 200 -S  5 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D70
 elif [ $1 -eq 10 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D70
+python3 run.py -N 1000 -L 200 -S 10 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D70
 elif [ $1 -eq 11 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D70
+python3 run.py -N 1000 -L 200 -S 20 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D70
 elif [ $1 -eq 12 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D70
+python3 run.py -N 1000 -L 200 -S 40 -D 70 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D70
 elif [ $1 -eq 13 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D100
+python3 run.py -N 1000 -L 200 -S  5 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D100
 elif [ $1 -eq 14 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D100
+python3 run.py -N 1000 -L 200 -S 10 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D100
 elif [ $1 -eq 15 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D100
+python3 run.py -N 1000 -L 200 -S 20 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D100
 elif [ $1 -eq 16 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D100
+python3 run.py -N 1000 -L 200 -S 40 -D 100 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D100
 elif [ $1 -eq 17 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D140
+python3 run.py -N 1000 -L 200 -S  5 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D140
 elif [ $1 -eq 18 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D140
+python3 run.py -N 1000 -L 200 -S 10 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D140
 elif [ $1 -eq 19 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D140
+python3 run.py -N 1000 -L 200 -S 20 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D140
 elif [ $1 -eq 20 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D140
+python3 run.py -N 1000 -L 200 -S 40 -D 140 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D140
 elif [ $1 -eq 21 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D180
+python3 run.py -N 1000 -L 200 -S  5 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D180
 elif [ $1 -eq 22 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D180
+python3 run.py -N 1000 -L 200 -S 10 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D180
 elif [ $1 -eq 23 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D180
+python3 run.py -N 1000 -L 200 -S 20 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D180
 elif [ $1 -eq 24 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D180
+python3 run.py -N 1000 -L 200 -S 40 -D 180 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D180
 elif [ $1 -eq 25 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D200
+python3 run.py -N 1000 -L 200 -S  5 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D200
 elif [ $1 -eq 26 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D200
+python3 run.py -N 1000 -L 200 -S 10 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D200
 elif [ $1 -eq 27 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D200
+python3 run.py -N 1000 -L 200 -S 20 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D200
 elif [ $1 -eq 28 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D200
+python3 run.py -N 1000 -L 200 -S 40 -D 200 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D200
 elif [ $1 -eq 29 ]
 then
-python3 run.py -N 1000 -L 300 -S  5 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L300S05D220
+python3 run.py -N 1000 -L 200 -S  5 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S05D220
 elif [ $1 -eq 30 ]
 then
-python3 run.py -N 1000 -L 300 -S 10 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L300S10D220
+python3 run.py -N 1000 -L 200 -S 10 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S10D220
 elif [ $1 -eq 31 ]
 then
-python3 run.py -N 1000 -L 300 -S 20 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L300S20D220
+python3 run.py -N 1000 -L 200 -S 20 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S20D220
 elif [ $1 -eq 32 ]
 then
-python3 run.py -N 1000 -L 300 -S 40 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L300S40D220
+python3 run.py -N 1000 -L 200 -S 40 -D 220 -P 100 -O /u/eot/hariria2/scratch/N1000L200S40D220
 fi

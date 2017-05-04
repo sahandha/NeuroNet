@@ -99,15 +99,25 @@ class Storage:
                 filedata.append(ld)
         return filedata
 
-    def ReadData(self):
-        for fileID in range(self._NumberOfFiles):
+    def ReadData(self, fileNumber="default"):
+        if fileNumber == 'default':
+            fileNumber = self._NumberOfFiles
+
+        for fileID in range(fileNumber):
             filedata=self.ReadFile(self._FileNames[fileID])
             if fileID == 0:
+                self._time     = [row[0] for row in filedata]
                 self._FullData = [row[1:] for row in filedata]
-                self._time = [row[0] for row in self._FullData]
             else:
                 self._FullData = [Arow+Brow[1:] for Arow,Brow in zip(self._FullData,filedata)]
 
+            self._time     = sorted(self._time)
+            self._FullData = [[t]+d for t,d in zip(self._time, self._FullData)]
+            self._FullData = sorted(self._FullData,key=lambda x: x[0])
+            self._FullData = [d[1:] for d in self._FullData]
+
+
+        self._NumberOfNeurons = np.shape(self._FullData)[1]
     def ReadNetworkData(self, filename):
         with open(filename) as data_file:
             data = json.load(data_file)

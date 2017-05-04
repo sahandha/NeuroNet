@@ -8,11 +8,11 @@ import igraph as ig
 #import cairo
 
 class Visualization:
-    def __init__(self,brain):
+    def __init__(self,brain, FigNume=1):
         self._Brain   = brain
         self._NumberOfNeurons = self._Brain._NumberOfNeurons
         self._Neurons = list(range(self._NumberOfNeurons))
-        self._FigNum  = 0
+        self._FigNum  = FigNume
         self.ConstructNetwork()
         self.SortNeurons()
 
@@ -23,7 +23,7 @@ class Visualization:
         self._Network= nx.DiGraph()
         self._Network.add_nodes_from(nodeData)
         self._Network.add_edges_from(edgeData)
-
+        self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
     def ConstructNetwork_igraph(self, linewidth):
 
         ymax = max([self._Brain._NeuronPosition[n][1] for n in range(0,self._NumberOfNeurons)])
@@ -48,8 +48,8 @@ class Visualization:
         self._vis_style["vertex_label_color"] = 'white'
 
     def PlotState(self,neurons=[0], render="Display"):
-        plt.figure(self._FigNum)
         self._FigNum += 1
+        plt.figure(self._FigNum,figsize=(30,15))
         for idx, n in enumerate(neurons):
             plt.subplot(len(neurons),1,idx+1)
             p = plt.plot(self._Brain._Time,self._Brain._VV[:,n])
@@ -65,8 +65,8 @@ class Visualization:
 
     def DrawNetwork(self, edgelabels=False, render="Display"):
         warnings.filterwarnings("ignore")
-        fig1=plt.figure(self._FigNum)
         self._FigNum += 1
+        fig1=plt.figure(self._FigNum,figsize=(25,25))
         ax = fig1.add_subplot(111, aspect='equal')
         plt.xlim((0,80))
         plt.ylim((0,80))
@@ -147,7 +147,7 @@ class Visualization:
             datay=np.append(datay, (i+1)*np.ones_like(d))
 
         self._FigNum += 1
-        fig = plt.figure(self._FigNum)
+        fig = plt.figure(self._FigNum,figsize=(30,15))
         ax = fig.add_subplot(111)
 
         p = plt.scatter(datax,datay,s=1)
@@ -159,7 +159,7 @@ class Visualization:
 
     def PlotTimeFrequency(self, render="Display"):
         self._FigNum += 1
-        plt.figure(self._FigNum)
+        plt.figure(self._FigNum,figsize=(30,15))
         time = self._Brain._Time
         data = np.zeros((self._NumberOfNeurons,len(time)))
         for i,n in enumerate(self._Neurons):
@@ -176,9 +176,8 @@ class Visualization:
             plt.savefig(render, bbox_inches='tight')
 
     def PlotAdjacencyMatrix(self, render="Display"):
-        plt.figure(self._FigNum)
         self._FigNum += 1
-        fig = plt.figure(self._FigNum,figsize=(15,4))
+        fig = plt.figure(self._FigNum,figsize=(30,15))
 
         M = nx.to_numpy_matrix(self._Network)
         ax1 = plt.subplot(131)
@@ -212,10 +211,10 @@ class Visualization:
     def PlotConnectivityProperties(self, render="Display"):
         #self._AverageConnectivity.append(nx.average_node_connectivity(self._Network))
         self._FigNum += 1
-        plt.figure(self._FigNum,figsize=(15,4))
+        plt.figure(self._FigNum,figsize=(30,15))
 
         plt.subplot(131)
-        self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
+        #self._DegreeDistribution = sorted(nx.degree(self._Network).values(),reverse=True)
         p=plt.loglog(self._DegreeDistribution,'-',marker='o')
         plt.setp(p,color='darkblue')
         plt.title("Degree rank plot")
@@ -245,9 +244,9 @@ class Visualization:
     def PlotDegreeDistribution(self, render="Display"):
         idegree = list(self._Network.in_degree().values())
         odegree = list(self._Network.out_degree().values())
-        plt.figure(self._FigNum, figsize=(15,4))
         self._FigNum += 1
-        try:
+        plt.figure(self._FigNum, figsize=(30,15))
+        if True:
             plt.subplot(131)
             plt.hist(idegree, int(max(idegree)/2), facecolor='lightblue', alpha=0.75, edgecolor='darkblue')
             plt.title('in-degree')
@@ -268,7 +267,7 @@ class Visualization:
                 plt.show()
             else:
                 plt.savefig(render, bbox_inches='tight')
-        except:
+        else:
             print("No connections at all")
 
     def GetSynapseCount(self):
@@ -276,3 +275,8 @@ class Visualization:
         for n in self._Neurons:
             self._Brain_SynapseCount
             self._SynapseCount.append(sum([self._Brain._SynapseWeight[(n,i)] for i in self._Neurons]))
+
+    def ClearPlot(self):
+        plt.cla()
+        plt.clf()
+        plt.close()

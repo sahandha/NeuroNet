@@ -6,7 +6,7 @@ from mpi4py import MPI
 import copy
 
 class NeuronModel():
-
+    Comm  = MPI.COMM_WORLD
     def __init__(self, N=10, t0=0, tend=100, dt=0.1, connectionscale=50, synapselimit=1000, synapsestrengthlimit=50, **params):
         self._dt              = dt
         self._tstart          = t0
@@ -35,8 +35,9 @@ class NeuronModel():
         self.Initialize()
         self.ComputeDistances() #This will result in self_DelayIndx and self._Distance
         # self.DevelopNetwork() #This will result in self._EdgeWieghts = {(n1,n2):w,...}
-        self._Comm  = MPI.COMM_WORLD
-        self._PSize = MPI.COMM_WORLD.size
+        #self._Comm  = MPI.COMM_WORLD
+        self._PSize = NeuronModel.Comm.size
+        print(self._PSize)
 
     def SetStorage(self,s):
         self._Storage = s
@@ -131,9 +132,9 @@ class NeuronModel():
         self.SplitData()
 
     def SplitData(self):
-        cs = MPI.COMM_WORLD.size
+        cs = NeuronModel.Comm.size
         s  = int(self._NumberOfNeurons/cs)
-        r = MPI.COMM_WORLD.rank
+        r = NeuronModel.Comm.rank
         self._V   = self._X[:self._NumberOfNeurons]
         self._N   = self._X[self._NumberOfNeurons:]
         self._Vp  = copy.copy(self._V[s*r:s*(r+1)])
@@ -147,7 +148,7 @@ class NeuronModel():
 
     def SetParameters(self):
         params = self._Params
-        cs = MPI.COMM_WORLD.size
+        cs = NeuronModel.Comm.size
         s  = int(self._NumberOfNeurons/cs)
         self._I   = np.random.normal(params["I"  ],params["I_v"  ],size=s)
         self._C   = np.random.normal(params["C"  ],params["C_v"  ],size=s)
@@ -164,9 +165,9 @@ class NeuronModel():
         self._V4  = np.random.normal(params["V4" ],params["V4_v" ],size=s)
 
     def UpdateSynapses(self,indx):
-        cs = MPI.COMM_WORLD.size
+        cs = NeuronModel.Comm.size
         s  = int(self._NumberOfNeurons/cs)
-        r = MPI.COMM_WORLD.rank
+        r = NeuronModel.Comm.rank
         EffectiveIndx = indx + self._DelayIndx;
         self._Inputp = np.zeros_like(self._Vp)
         for i in range(s):
@@ -190,9 +191,9 @@ class NeuronModel():
         return np.concatenate((self._dVp, self._dNp))
 
     def UpdateRK(self,ii):
-        cs = MPI.COMM_WORLD.size
+        cs = NeuronModel.Comm.size
         s  = int(self._NumberOfNeurons/cs)
-        r = MPI.COMM_WORLD.rank
+        r = NeuronModel.Comm.rank
         k1 = self.MLFlow(self._t, self._Xp)
         k2 = self.MLFlow(self._t+self._dt/2, self._Xp+k1*self._dt/2)
         k3 = self.MLFlow(self._t+self._dt/2, self._Xp+k2*self._dt/2)
@@ -234,7 +235,7 @@ class NeuronModel():
                 self.MPICOMM()
                 self.AddNoise(ii)
                 self.UpdateRK(ii);
-                if MPI.COMM_WORLD.rank == 0:
+                if NeuronModel.Comm.rank == 0:
                     print("step ",ii, " of ", len(self._Time))
         else:
             for ii in range(len(self._Time)):
@@ -247,23 +248,23 @@ class NeuronModel():
 
 
     def MPICOMM(self):
-        MPI.COMM_WORLD.Barrier()
-        MPI.COMM_WORLD.Gather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
-        MPI.COMM_WORLD.Gather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
-        MPI.COMM_WORLD.Gather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
-        MPI.COMM_WORLD.Gather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
-        #MPI.COMM_WORLD.Gather( [self._Inputp, MPI.DOUBLE], [self._Input, MPI.DOUBLE] )
+        NeuronModel.Comm.Barrier()
+        NeuronModel.Comm.Gather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
+        NeuronModel.Comm.Gather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
+        NeuronModel.Comm.Gather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
+        NeuronModel.Comm.Gather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
+        #NeuronModel.Comm.Gather( [self._Inputp, MPI.DOUBLE], [self._Input, MPI.DOUBLE] )
         self._X = np.concatenate((self._V,self._N))
         self._dX = np.concatenate((self._dV,self._dN))
         #self.SplitData()
 
 
     def WriteData(self):
-        if MPI.COMM_WORLD.rank == 0:
+        if NeuronModel.Comm.rank == 0:
             self._Storage.WriteLine()
 
 
 if __name__=='__main__':
-    comm = MPI.COMM_WORLD
+    comm = NeuronModel.Comm
     print("Hello! I'm rank %d from %d running in total..." % (comm.rank, comm.size))
     comm.Barrier()   # wait for everybody to synchronize _here_

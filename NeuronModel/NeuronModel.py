@@ -37,7 +37,7 @@ class NeuronModel():
         # self.DevelopNetwork() #This will result in self._EdgeWieghts = {(n1,n2):w,...}
         #self._Comm  = MPI.COMM_WORLD
         self._PSize = NeuronModel.Comm.size
-        print(self._PSize)
+
 
     def SetStorage(self,s):
         self._Storage = s
@@ -86,7 +86,7 @@ class NeuronModel():
     def DevelopNetwork(self,n,source='Jupyter'):
         x = 0;
         self._NetworkDevel = n
-        print("==========> Developing Netowrk <============...hang on...")
+
         if source=='Jupyter':
             for t in range(n):
                 for key in self._SynapseWeight.keys():
@@ -109,7 +109,7 @@ class NeuronModel():
                         if self._SynapseCount[key[0]] < self._SynapseLimit and self._SynapseCount[key[1]] < self._SynapseLimit:
                             self._SynapseCount[key[0]]+=1
                             self._SynapseCount[key[1]]+=1
-        print("============> Done <=============")
+
 
     def Initialize(self):
         self._V    = np.random.normal(-40,1,size=self._NumberOfNeurons)
@@ -174,7 +174,7 @@ class NeuronModel():
             input = self._VV[EffectiveIndx,np.arange(self._NumberOfNeurons)]
             weights = np.array([self._SynapseWeight[(n,r*(i+1))] for n in range(self._NumberOfNeurons)])
             self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
-        self._Inputp[EffectiveIndx<0] = 0
+        self._Inputp[np.where(EffectiveIndx<0)] = 0
 
     def MLFlow(self, t, x):
 
@@ -219,7 +219,9 @@ class NeuronModel():
         self._dNN[i,:] = self._dX[self._NumberOfNeurons:]
 
     def AddNoise(self,indx):
+        s  = int(self._NumberOfNeurons/NeuronModel.Comm.size)
         self._X[self._NumberOfNeurons:] += np.random.normal(self._NoiseMean, self._NoiseSTD, self._NumberOfNeurons)
+        self._Np += np.random.normal(self._NoiseMean, self._NoiseSTD, s)
 
     def Simulate(self, source='Jupyter'):
         self.Initialize()
@@ -231,9 +233,9 @@ class NeuronModel():
             for ii in range(len(self._Time)):
                 self.WriteData()
                 self.StoreTimeSeriesData(ii)
+                self.AddNoise(ii)
                 self.UpdateSynapses(ii)
                 self.MPICOMM()
-                self.AddNoise(ii)
                 self.UpdateRK(ii);
                 if NeuronModel.Comm.rank == 0:
                     print("step ",ii, " of ", len(self._Time))
@@ -249,10 +251,10 @@ class NeuronModel():
 
     def MPICOMM(self):
         NeuronModel.Comm.Barrier()
-        NeuronModel.Comm.Gather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
-        NeuronModel.Comm.Gather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
-        NeuronModel.Comm.Gather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
-        NeuronModel.Comm.Gather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
+        NeuronModel.Comm.Allgather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
+        NeuronModel.Comm.Allgather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
+        NeuronModel.Comm.Allgather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
+        NeuronModel.Comm.Allgather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
         #NeuronModel.Comm.Gather( [self._Inputp, MPI.DOUBLE], [self._Input, MPI.DOUBLE] )
         self._X = np.concatenate((self._V,self._N))
         self._dX = np.concatenate((self._dV,self._dN))

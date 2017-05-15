@@ -47,9 +47,9 @@ class Visualization:
         self._vis_style['vertex_color'] = 'blue'
         self._vis_style["vertex_label_color"] = 'white'
 
-    def PlotState(self,neurons=[0], render="Display"):
+    def PlotState(self,neurons=[0], render="Display",figsize=(30,15)):
         self._FigNum += 1
-        plt.figure(self._FigNum,figsize=(30,15))
+        plt.figure(self._FigNum,figsize=figsize)
         for idx, n in enumerate(neurons):
             plt.subplot(len(neurons),1,idx+1)
             p = plt.plot(self._Brain._Time,self._Brain._VV[:,n])

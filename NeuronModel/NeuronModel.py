@@ -26,16 +26,17 @@ class NeuronModel():
         self._SynapseLimit         = synapselimit
         self._SynapseStrengthLimit = synapsestrengthlimit
         self._CellType             = np.random.choice([-1,1],size=N,p=[1/5,4/5])
+        self._NetworkDevelTime     = networkdevel
         self._NeuronPosition       = []
         self._Distance             = {}
         #self._SynapseProbability   = {}
-        self._DelayIndx            = np.zeros(self._NumberOfNeurons,dtype=np.int64)
-        self._SynapseWeight        = {key: 0 for key in it.product(range(self._NumberOfNeurons),repeat=2)}
-        self._SynapseQ             = {key: False for key in it.product(range(self._NumberOfNeurons),repeat=2)}
+        self._DelayIndx            = np.zeros(self._NumberOfNeurons,dtype=np.int)
+        #self._SynapseWeight        = {key: 0 for key in it.product(range(self._NumberOfNeurons),repeat=2)}
+        #self._SynapseQ             = {key: False for key in it.product(range(self._NumberOfNeurons),repeat=2)}
         self._Params               = params
         self.PlaceNeurons()
         self.ComputeDistances()
-        self.DevelopNetwork(networkdevel)
+        #self.DevelopNetwork(networkdevel)
         self.Initialize()
 
 
@@ -64,7 +65,6 @@ class NeuronModel():
                 x = x
                 y = y
             self._NeuronPosition.append(np.array([x,y]))
-            #self._Cell = (int(np.floor(self._x/10)),int(np.floor(self._y/10)))
 
     def ComputeDistances(self):
         for ii in range(self._NumberOfNeurons):
@@ -72,13 +72,10 @@ class NeuronModel():
                 if ii == jj:
                     d                                 = 0
                     self._Distance[(ii,jj)]           = 0
-                    #self._SynapseProbability[(ii,jj)] = 0
                 else:
                     d = np.sqrt(self.Distance2(self._NeuronPosition[ii], self._NeuronPosition[jj]))
                     self._Distance[(ii,jj)]           = d
                     self._Distance[(jj,ii)]           = d
-                    #self._SynapseProbability[(ii,jj)] = np.exp(-d/self._ConnectionScale)
-                    #self._SynapseProbability[(jj,ii)] = np.exp(-d/self._ConnectionScale)
         for i in range(self._NumberOfNeurons):
             self._DelayIndx = np.array([int(2*self._Distance[(i,n)]/self._dt) for n in range(self._NumberOfNeurons)])
 
@@ -92,18 +89,17 @@ class NeuronModel():
             else:
                 self._SynapseWeight[key]=min(int(n*np.exp(-value/self._ConnectionScale)),self._SynapseLimit)
 
+    def GetWeight(self, n1, n2):
+        if n1==n2:
+            w = 0
+        else:
+            d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
+            w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
 
-        #for t in range(n):
-        #    for key in self._SynapseWeight.keys():
-        #        np.random.seed(t)
-        #        if self._SynapseCount[key[0]] < self._SynapseLimit and self._SynapseCount[key[1]] < self._SynapseLimit:
-        #            if np.random.random()<self._SynapseProbability[key]:
-        #                self._SynapseQ[key]        = True
-        #                self._SynapseCount[key[0]]+=1
-        #                self._SynapseCount[key[1]]+=1
+        if self._Storage._WriteNetwork:
+            self._Storage.WriteNetworkItem(n1,n2,w,NeuronModel.Comm.rank)
 
-        #        if self._SynapseQ[key] and self._SynapseWeight[key] < self._SynapseStrengthLimit:
-        #            self._SynapseWeight[key]+=1
+        return w
 
     def Initialize(self):
         self._V    = np.random.normal(-40,1,size=self._NumberOfNeurons)
@@ -158,12 +154,14 @@ class NeuronModel():
         s  = int(self._NumberOfNeurons/cs)
         r = NeuronModel.Comm.rank
 
+        if indx != 0 and self._Storage._WriteNetwork:
+            self._Storage.CloseNetworkFile(r)
+
         self._Inputp = np.zeros_like(self._Vp)
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
-            weights = np.array([self._SynapseWeight[(n,r*(i+1))] for n in range(self._NumberOfNeurons)])
+            weights = np.array([self.GetWeight(n,r*s+i) for n in range(self._NumberOfNeurons)])
             self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
-        #self._Inputp[np.where(EffectiveIndx<0)] = 0
 
     def MLFlow(self, t, x):
 
@@ -201,10 +199,6 @@ class NeuronModel():
 
     def StoreTimeSeriesData(self, i):
         self._VV = np.concatenate((self._VV[1:,:], self._V.reshape(1,len(self._V))))
-        #self._VV[i,:] = self._X[:self._NumberOfNeurons]
-        #self._NN[i,:] = self._X[self._NumberOfNeurons:]
-        #self._dVV[i,:] = self._dX[:self._NumberOfNeurons]
-        #self._dNN[i,:] = self._dX[self._NumberOfNeurons:]
 
     def AddNoise(self,indx):
         s  = int(self._NumberOfNeurons/NeuronModel.Comm.size)
@@ -246,7 +240,6 @@ class NeuronModel():
         #NeuronModel.Comm.Gather( [self._Inputp, MPI.DOUBLE], [self._Input, MPI.DOUBLE] )
         self._X = np.concatenate((self._V,self._N))
         self._dX = np.concatenate((self._dV,self._dN))
-        #self.SplitData()
 
 
     def WriteData(self):

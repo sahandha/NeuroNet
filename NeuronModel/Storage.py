@@ -7,10 +7,13 @@ class Storage:
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
             os.makedirs(self._DataFolder)
+        if not os.path.exists(self._DataFolder+"/Network"):
+            os.makedirs(self._DataFolder+"/Network")
         self._ParameterFileName = ParameterFileName
         self.GetParams(NumberOfNeurons,NumberOfFiles,NeuronsPerFile)
         self._FileNames={}
         self._FullData=[]
+        self._WriteNetwork = False
         self.AssembleFileNames()
 
 
@@ -78,13 +81,28 @@ class Storage:
             self._Parameters["SynapseLimit"]    = self._Brain._SynapseLimit
             json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '))
 
-    def WriteNetwork(self):
+    def WritePositions(self):
         data = {}
         data["Coordinate"] = {i:list(n) for i,n in enumerate(self._Brain._NeuronPosition)}
-        data["Connections"] = {str(key):value for key,value in zip(self._Brain._SynapseWeight.keys(), self._Brain._SynapseWeight.values())}
-
-        with open(self._DataFolder+"/Network.json", 'w') as f:
+        with open(self._DataFolder+"/Positions.json", 'w') as f:
             json.dump(data, f, indent=4, separators=(',', ': '))
+
+    def WriteNetwork(self,r):
+        self._WriteNetwork = True
+        with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
+            f.write('{\n\t"Network": {\n')
+
+    def WriteNetworkItem(self,n1,n2,w,r):
+        with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
+            f.write('\t\t({},{}):{},\n'.format(n1,n2,w))
+
+    def CloseNetworkFile(self, r):
+        self._WriteNetwork = False
+        with open(self._DataFolder+"/Network/Network{}.json".format(r), 'rb+') as f:
+            f.seek(-2, os.SEEK_END)
+            f.truncate()
+        with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
+            f.write('\n\t}\n}')
 
     def ReadFile(self, filename):
         filedata = []
@@ -118,9 +136,13 @@ class Storage:
 
 
         self._NumberOfNeurons = np.shape(self._FullData)[1]
+
     def ReadNetworkData(self, filename):
         with open(filename) as data_file:
             data = json.load(data_file)
-
         self._Brain._SynapseWeight = {tuple(map(int,key.strip("()").split(","))):value for key,value in data['Connections'].items()}
+
+    def ReadPositionData(self, filename):
+        with open(filename) as data_file:
+            data = json.load(data_file)
         self._Brain._NeuronPosition = [data['Coordinate'][str(i)] for i in range(self._NumberOfNeurons)]

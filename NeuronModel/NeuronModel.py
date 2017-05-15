@@ -35,11 +35,10 @@ class NeuronModel():
         #self._SynapseQ             = {key: False for key in it.product(range(self._NumberOfNeurons),repeat=2)}
         self._Params               = params
         self.PlaceNeurons()
-        self.ComputeDistances()
+        self.ComputeDelayIndex()
+        #self.ComputeDistances()
         #self.DevelopNetwork(networkdevel)
         self.Initialize()
-
-
 
     def SetStorage(self,s):
         self._Storage = s
@@ -67,17 +66,26 @@ class NeuronModel():
             self._NeuronPosition.append(np.array([x,y]))
 
     def ComputeDistances(self):
-        for ii in range(self._NumberOfNeurons):
-            for jj in range(ii,self._NumberOfNeurons):
-                if ii == jj:
-                    d                                 = 0
-                    self._Distance[(ii,jj)]           = 0
-                else:
-                    d = np.sqrt(self.Distance2(self._NeuronPosition[ii], self._NeuronPosition[jj]))
-                    self._Distance[(ii,jj)]           = d
-                    self._Distance[(jj,ii)]           = d
+        #for ii in range(self._NumberOfNeurons):
+        #    for jj in range(ii,self._NumberOfNeurons):
+        #        if ii == jj:
+        #            d                                 = 0
+        #            self._Distance[(ii,jj)]           = 0
+        #        else:
+        #            d = np.sqrt(self.Distance2(self._NeuronPosition[ii], self._NeuronPosition[jj]))
+        #            self._Distance[(ii,jj)]           = d
+        #            self._Distance[(jj,ii)]           = d
+
+    def GetDelayIndex(self,n1,n2):
+        if n1==n2:
+            d = 0
+        else:
+            d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
+        return d
+
+    def ComputeDelayIndex(self):
         for i in range(self._NumberOfNeurons):
-            self._DelayIndx = np.array([int(2*self._Distance[(i,n)]/self._dt) for n in range(self._NumberOfNeurons)])
+            self._DelayIndx = np.array([int(2*self.GetDelayIndex(i,n)/self._dt) for n in range(self._NumberOfNeurons)])
 
     def Distance2(self, a, b):
         return sum((a - b)**2)

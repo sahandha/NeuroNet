@@ -65,7 +65,7 @@ class NeuronModel():
                 y = y
             self._NeuronPosition.append(np.array([x,y]))
 
-    def ComputeDistances(self):
+    #def ComputeDistances(self):
         #for ii in range(self._NumberOfNeurons):
         #    for jj in range(ii,self._NumberOfNeurons):
         #        if ii == jj:

@@ -97,7 +97,7 @@ class NeuronModel():
             else:
                 self._SynapseWeight[key]=min(int(n*np.exp(-value/self._ConnectionScale)),self._SynapseLimit)
 
-    def GetWeight(self, n1, n2):
+    def GetWeight(self, n1, n2,r):
         if n1==n2:
             w = 0
         else:
@@ -168,7 +168,7 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
-            weights = np.array([self.GetWeight(n,r*s+i) for n in range(self._NumberOfNeurons)])
+            weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
             self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
 
     def MLFlow(self, t, x):

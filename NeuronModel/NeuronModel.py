@@ -29,15 +29,10 @@ class NeuronModel():
         self._NetworkDevelTime     = networkdevel
         self._NeuronPosition       = []
         self._Distance             = {}
-        #self._SynapseProbability   = {}
         self._DelayIndx            = np.zeros(self._NumberOfNeurons,dtype=np.int)
-        #self._SynapseWeight        = {key: 0 for key in it.product(range(self._NumberOfNeurons),repeat=2)}
-        #self._SynapseQ             = {key: False for key in it.product(range(self._NumberOfNeurons),repeat=2)}
         self._Params               = params
         self.PlaceNeurons()
         self.ComputeDelayIndex()
-        #self.ComputeDistances()
-        #self.DevelopNetwork(networkdevel)
         self.Initialize()
 
     def SetStorage(self,s):
@@ -64,17 +59,6 @@ class NeuronModel():
                 x = x
                 y = y
             self._NeuronPosition.append(np.array([x,y]))
-
-    #def ComputeDistances(self):
-        #for ii in range(self._NumberOfNeurons):
-        #    for jj in range(ii,self._NumberOfNeurons):
-        #        if ii == jj:
-        #            d                                 = 0
-        #            self._Distance[(ii,jj)]           = 0
-        #        else:
-        #            d = np.sqrt(self.Distance2(self._NeuronPosition[ii], self._NeuronPosition[jj]))
-        #            self._Distance[(ii,jj)]           = d
-        #            self._Distance[(jj,ii)]           = d
 
     def GetDelayIndex(self,n1,n2):
         if n1==n2:
@@ -238,7 +222,6 @@ class NeuronModel():
                 self.UpdateRK(ii);
                 self.MPICOMM()
 
-
     def MPICOMM(self):
         NeuronModel.Comm.Barrier()
         NeuronModel.Comm.Allgather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
@@ -249,13 +232,6 @@ class NeuronModel():
         self._X = np.concatenate((self._V,self._N))
         self._dX = np.concatenate((self._dV,self._dN))
 
-
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:
             self._Storage.WriteLine()
-
-
-if __name__=='__main__':
-    comm = NeuronModel.Comm
-    print("Hello! I'm rank %d from %d running in total..." % (comm.rank, comm.size))
-    comm.Barrier()   # wait for everybody to synchronize _here_

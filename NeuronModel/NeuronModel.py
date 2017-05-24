@@ -87,10 +87,6 @@ class NeuronModel():
         else:
             d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
             w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
-
-        if self._Storage._WriteNetwork:
-            self._Storage.WriteNetworkItem(n1,n2,w,NeuronModel.Comm.rank)
-
         return w
 
     def Initialize(self):
@@ -153,6 +149,8 @@ class NeuronModel():
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
             weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
+            if self._Storage._WriteNetwork:
+                self._Storage.WriteNetworkGroup(r*s+i,weights,r)
             self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
 
     def MLFlow(self, t, x):

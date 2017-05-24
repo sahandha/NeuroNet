@@ -96,6 +96,13 @@ class Storage:
         with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
             f.write('\t\t({},{}):{},\n'.format(n1,n2,w))
 
+    def WriteNetworkGroup(self,n,w,r):
+        str = ''
+        for idx,weight in enumerate(w):
+            str += '\t\t({},{}):{},\n'.format(idx,n,weight)
+        with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
+            f.write(str)
+
     def CloseNetworkFile(self, r):
         self._WriteNetwork = False
         with open(self._DataFolder+"/Network/Network{}.json".format(r), 'rb+') as f:

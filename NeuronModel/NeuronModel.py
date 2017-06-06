@@ -6,6 +6,7 @@ from mpi4py import MPI
 import copy
 import pycuda.autoinit
 from pycuda import gpuarray, reduction
+from pycuda.elementwise import ElementwiseKernel
 
 class NeuronModel():
     Comm  = MPI.COMM_WORLD
@@ -151,51 +152,52 @@ class NeuronModel():
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
             cudakernel = self.CreateCUDAKernel()
-            self._Inputp[i] = self.ComputeInGPU(input, np.array([r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit]))
+            self._Inputp[i] = self.ComputeInGPU(cudakernel,input, np.array([r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit]))
 
             #weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
-            #if self._Storage._WriteNetwork:
-            #    self._Storage.WriteNetworkGroup(r*s+i,weights,r)
-            #self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
+            weights = self.ComputeInGPU(cudakernel,input, r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit, self._NeuronPosition[r*s+i,0],self._NeuronPosition[r*s+i,1])
+            if self._Storage._WriteNetwork:
+                self._Storage.WriteNetworkGroup(r*s+i,weights,r)
+            self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
 
     def CreateCUDAKernel(self):
         initvalue = "0"
         mapper = '''
-            double w;
-            double d;
-            double Neuron           = params[0]
-            double NumeberOfNeurons = params[1]
-            double NetworkDevelTime = params[2]
-            double ConnectionScale  = params[3]
-            double SynapseLimit     = params[4]
-            double x                = params[5]
-            double y                = params[6]
+            float w;
+            float d;
 
             if(Neuron == i){
-                w = 0;
+                w[i] = 0;
             } else {
                 d = sqrt((X-x)^2 + (Y-y)^2);
-                w = min(NetworkDevelTime*exp(-d/ConnectionScale)), SynapseLimit);
+                w[i] = min(NetworkDevelTime*exp(-d/ConnectionScale)), SynapseLimit);
             }
-            1/SynapseLimit*w*CellType[i]*1/(1+exp(-input[i]));
         '''
-        reducer = "a+b"
-        # input, NeuronX, NeuronY, CellType, [Neuron, NumberOfNeurons, NetworkDevelTime, ConnectionScale, SynapseLimit]
-        cudafunctionarguments = "float* input, float* X, float* Y, float* CellType, float* Params"
-        kernel = reduction.ReductionKernel(np.float32, neutral = initvalue,
-                                            reduce_expr=reducer, map_expr = mapper,
-                                            arguments = cudafunctionarguments)
+        #1/SynapseLimit*w*CellType[i]*1/(1+exp(-input[i]));
+        #reducer = "a+b"
+        cudafunctionarguments = '''
+            float* input, float* X, float* Y, float* CellType, float* w,
+            float Neuron,
+            float NumberOfNeurons,
+            float NetworkDevelTime,
+            float ConnectionScale,
+            float SynapseLimit,
+            float x, float y"
+        '''
+        #kernel = reduction.ReductionKernel(np.float32, neutral = initvalue,
+        #                                    reduce_expr=reducer, map_expr = mapper,
+        #                                    arguments = cudafunctionarguments)
+
+        kernel = ElementwiseKernel(cudafunctionarguments,mapper)
         return kernel
 
-    def ComputeInGPU(self,input,params):
+    def ComputeInGPU(self,kernel,input,neuron,numneurons,netdev,conscale,synlim,x,y):
         gpuInput    = gpuarray.to_gpu(input)
         gpuX        = gpuarray.to_gpu(Self._NeuronPosition[:,0])
         gpuY        = gpuarray.to_gpu(Self._NeuronPosition[:,1])
         gpuCellType = gpuarray.to_gpu(self._CellType)
-        gpuParams   = gpuarray.to_gpu(params)
-        datasetsize = len(bignumpyarray)
-
-        res         = kernel(gpuInput,gpuX,gpuY,gpuCellType,gpuParams).get()
+        gpuW        = gpuarray.empty_like(gpuInput)
+        res         = kernel(gpuInput,gpuX,gpuY,gpuCellType,gpuW,neuron,numneurons,netdev,conscale,synlim,x,y).get()
         return res
 
     def MLFlow(self, t, x):

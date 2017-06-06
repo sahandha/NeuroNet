@@ -17,4 +17,4 @@ module load bwpy
 module load bwpy-mpi
 module load cudatoolkit
 
-aprun -n 64 -N 16  python3 ./run.py -N 12800 -S 10 -L 1000 -D 500 -P 200 -O /u/eot/hariria2/scratch/Parallel/Sim0_06062017
+aprun -n 48 -N 16  python3 ./run.py -N 9600 -S 10 -L 1000 -D 500 -P 200 -O /u/eot/hariria2/scratch/Parallel/Sim0_06062017

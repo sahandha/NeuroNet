@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#######! python3
+#! python3
 import pycuda.autoinit
 from pycuda import gpuarray, reduction
 from pycuda.elementwise import ElementwiseKernel

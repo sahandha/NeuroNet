@@ -1,5 +1,5 @@
 import sys, getopt
-from NeuronModel import *
+from NeuronModel import NeuronModel
 from Storage import *
 
 

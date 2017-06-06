@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-#! python3
-import pycuda
 import sys, getopt
 import pycuda.autoinit
 from pycuda import gpuarray, reduction

@@ -152,8 +152,7 @@ class NeuronModel():
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
             cudakernel = self.CreateCUDAKernel()
-            self._Inputp[i] = self.ComputeInGPU(cudakernel,input, np.array([r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit]))
-
+            #self._Inputp[i] = self.ComputeInGPU(cudakernel,input, np.array([r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit]))
             #weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
             weights = self.ComputeInGPU(cudakernel,input, r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit, self._NeuronPosition[r*s+i,0],self._NeuronPosition[r*s+i,1])
             if self._Storage._WriteNetwork:

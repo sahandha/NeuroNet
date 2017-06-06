@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #######! python3
+import pycuda.autoinit
+from pycuda import gpuarray, reduction
+from pycuda.elementwise import ElementwiseKernel
 import numpy as np
 import itertools as it
 from mpi4py import MPI
 import copy
-import pycuda.autoinit
-from pycuda import gpuarray, reduction
-from pycuda.elementwise import ElementwiseKernel
 
 class NeuronModel():
     Comm  = MPI.COMM_WORLD

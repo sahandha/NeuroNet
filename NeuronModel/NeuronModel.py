@@ -154,8 +154,8 @@ class NeuronModel():
             self._Inputp[i] = self.ComputeInGPU(input, np.array([r*s+i,self._NumberOfNeurons,self._NetworkDevelTime,self._ConnectionScale,self._SynapseLimit]))
 
             #weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
-            if self._Storage._WriteNetwork:
-                self._Storage.WriteNetworkGroup(r*s+i,weights,r)
+            #if self._Storage._WriteNetwork:
+            #    self._Storage.WriteNetworkGroup(r*s+i,weights,r)
             #self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
 
     def CreateCUDAKernel(self):

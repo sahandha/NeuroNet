@@ -6,7 +6,7 @@ import numpy as np
 import itertools as it
 from mpi4py import MPI
 import copy
-
+'''
 class NeuronModel():
     Comm  = MPI.COMM_WORLD
     def __init__(self, N=10, t0=0, tend=100, dt=0.1, connectionscale=50, synapselimit=1000, synapsestrengthlimit=50, networkdevel=10, **params):
@@ -278,7 +278,7 @@ class NeuronModel():
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:
             self._Storage.WriteLine()
-
+'''
 
 def main(argv):
     # Defaults
@@ -353,4 +353,5 @@ def main(argv):
         brain.SetStorage(storage)
         brain.Simulate(source='script')
 if __name__=='__main__':
-    main(sys.argv[1:])
+    #main(sys.argv[1:])
+    print('Hello World!')

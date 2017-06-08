@@ -1,4 +1,3 @@
-import sys, getopt
 import pycuda.autoinit
 from pycuda import gpuarray, reduction
 from pycuda.elementwise import ElementwiseKernel
@@ -285,7 +284,9 @@ class NeuronModel():
 '''
 
 def main(argv):
+    print("test")
     # Defaults
+"""
     fromFile     = False
     fileName     = '/Users/sahand/Research/NeuroNet/Data/Parameters.json'
     outputFolder = '/Users/sahand/Research/NeuroNet/Data'
@@ -339,6 +340,7 @@ def main(argv):
         elif opt in ("-P"):
             NeuronPerFile = int(arg)
     print('Hello World!')
+"""
 '''
     if fromFile:
         storage = Storage.FromFile(fileName)

@@ -1,3 +1,4 @@
+import sys, getopt
 import pycuda.autoinit
 from pycuda import gpuarray, reduction
 from pycuda.elementwise import ElementwiseKernel
@@ -5,7 +6,7 @@ import numpy as np
 import itertools as it
 from mpi4py import MPI
 import copy
-'''
+
 class NeuronModel():
     Comm  = MPI.COMM_WORLD
     def __init__(self, N=10, t0=0, tend=100, dt=0.1, connectionscale=50, synapselimit=1000, synapsestrengthlimit=50, networkdevel=10, **params):
@@ -160,7 +161,6 @@ class NeuronModel():
     def CreateCUDAKernel(self):
         initvalue = "0"
         mapper = '''
-'''
             float w;
             float d;
 
@@ -170,12 +170,10 @@ class NeuronModel():
                 d = sqrt((X-x)^2 + (Y-y)^2);
                 w[i] = min(NetworkDevelTime*exp(-d/ConnectionScale)), SynapseLimit);
             }
-'''
-'''
+        '''
         #1/SynapseLimit*w*CellType[i]*1/(1+exp(-input[i]));
         #reducer = "a+b"
         cudafunctionarguments = '''
-'''
             float* input, float* X, float* Y, float* CellType, float* w,
             float Neuron,
             float NumberOfNeurons,
@@ -183,8 +181,7 @@ class NeuronModel():
             float ConnectionScale,
             float SynapseLimit,
             float x, float y"
-'''
-'''
+        '''
         #kernel = reduction.ReductionKernel(np.float32, neutral = initvalue,
         #                                    reduce_expr=reducer, map_expr = mapper,
         #                                    arguments = cudafunctionarguments)
@@ -281,12 +278,10 @@ class NeuronModel():
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:
             self._Storage.WriteLine()
-'''
+
 
 def main(argv):
-    print("test")
     # Defaults
-"""
     fromFile     = False
     fileName     = '/Users/sahand/Research/NeuroNet/Data/Parameters.json'
     outputFolder = '/Users/sahand/Research/NeuroNet/Data'
@@ -339,9 +334,6 @@ def main(argv):
             NetworkDevel = int(arg)
         elif opt in ("-P"):
             NeuronPerFile = int(arg)
-    print('Hello World!')
-"""
-'''
     if fromFile:
         storage = Storage.FromFile(fileName)
         storage.ReadData()
@@ -360,7 +352,5 @@ def main(argv):
         storage.WriteNetwork(NeuronModel.Comm.rank)
         brain.SetStorage(storage)
         brain.Simulate(source='script')
-'''
-
 if __name__=='__main__':
     main(sys.argv[1:])

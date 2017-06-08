@@ -334,6 +334,8 @@ def main(argv):
             NetworkDevel = int(arg)
         elif opt in ("-P"):
             NeuronPerFile = int(arg)
+    print('Hello World!')
+'''
     if fromFile:
         storage = Storage.FromFile(fileName)
         storage.ReadData()
@@ -352,6 +354,7 @@ def main(argv):
         storage.WriteNetwork(NeuronModel.Comm.rank)
         brain.SetStorage(storage)
         brain.Simulate(source='script')
+'''
+
 if __name__=='__main__':
-    #main(sys.argv[1:])
-    print('Hello World!')
+    main(sys.argv[1:])

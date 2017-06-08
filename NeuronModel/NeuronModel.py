@@ -174,15 +174,15 @@ class NeuronModel():
         #'''
         #1/SynapseLimit*w*CellType[i]*1/(1+exp(-input[i]));
         #reducer = "a+b"
-        cudafunctionarguments = '''
-            float* input, float* X, float* Y, float* CellType, float* w,
-            float Neuron,
-            float NumberOfNeurons,
-            float NetworkDevelTime,
-            float ConnectionScale,
-            float SynapseLimit,
-            float x, float y"
-        '''
+        #cudafunctionarguments = '''
+        #    float* input, float* X, float* Y, float* CellType, float* w,
+        #    float Neuron,
+        #    float NumberOfNeurons,
+        #    float NetworkDevelTime,
+        #    float ConnectionScale,
+        #    float SynapseLimit,
+        #    float x, float y"
+        #'''
         #kernel = reduction.ReductionKernel(np.float32, neutral = initvalue,
         #                                    reduce_expr=reducer, map_expr = mapper,
         #                                    arguments = cudafunctionarguments)

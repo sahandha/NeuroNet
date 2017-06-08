@@ -160,17 +160,18 @@ class NeuronModel():
 
     def CreateCUDAKernel(self):
         initvalue = "0"
-        mapper = '''
-            float w;
-            float d;
 
-            if(Neuron == i){
-                w[i] = 0;
-            } else {
-                d = sqrt((X-x)^2 + (Y-y)^2);
-                w[i] = min(NetworkDevelTime*exp(-d/ConnectionScale)), SynapseLimit);
-            }
-        '''
+        # mapper = '''
+        #    float w;
+        #    float d;
+
+        #    if(Neuron == i){
+        #        w[i] = 0;
+        #    } else {
+        #        d = sqrt((X-x)^2 + (Y-y)^2);
+        #        w[i] = min(NetworkDevelTime*exp(-d/ConnectionScale)), SynapseLimit);
+        #    }
+        #'''
         #1/SynapseLimit*w*CellType[i]*1/(1+exp(-input[i]));
         #reducer = "a+b"
         cudafunctionarguments = '''

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-#######! python3
+###! python3
 import numpy as np
 import itertools as it
 from mpi4py import MPI
 import copy
+from multiprocessing import Pool
+from functools import partial
 
 class NeuronModel():
     Comm  = MPI.COMM_WORLD
@@ -34,6 +36,7 @@ class NeuronModel():
         self.PlaceNeurons()
         self.ComputeDelayIndex()
         self.Initialize()
+        self._Pool = Pool(processes=32)
 
     def SetStorage(self,s):
         self._Storage = s
@@ -81,7 +84,7 @@ class NeuronModel():
             else:
                 self._SynapseWeight[key]=min(int(n*np.exp(-value/self._ConnectionScale)),self._SynapseLimit)
 
-    def GetWeight(self, n1, n2,r):
+    def GetWeight(self, r=1, n1=1, n2=2):
         if n1==n2:
             w = 0
         else:
@@ -148,7 +151,9 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
-            weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
+            #weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
+            func = partial(self.GetWeight,r,r*s+i)
+            weights = np.array(self._Pool.map(func,range(self._NumberOfNeurons)))
             if self._Storage._WriteNetwork:
                 self._Storage.WriteNetworkGroup(r*s+i,weights,r)
             self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
@@ -233,3 +238,11 @@ class NeuronModel():
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:
             self._Storage.WriteLine()
+
+    def __getstate__(self):
+        self_dict = self.__dict__.copy()
+        del self_dict['_Pool']
+        return self_dict
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)

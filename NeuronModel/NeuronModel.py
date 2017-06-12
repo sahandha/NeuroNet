@@ -5,6 +5,7 @@ import itertools as it
 from mpi4py import MPI
 import copy
 from multiprocessing import Pool
+from multiprocessing import cpu_count
 from functools import partial
 
 class NeuronModel():
@@ -36,7 +37,7 @@ class NeuronModel():
         self.PlaceNeurons()
         self.ComputeDelayIndex()
         self.Initialize()
-        self._Pool = Pool(processes=32)
+        self._Pool = Pool(processes=cpu_count())
 
     def SetStorage(self,s):
         self._Storage = s

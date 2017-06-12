@@ -79,7 +79,7 @@ def main(argv):
         if NeuronModel.Comm.rank==0:
             storage.WriteParameters()
             storage.WritePositions()
-        storage.WriteNetwork(NeuronModel.Comm.rank)
+        #storage.WriteNetwork(NeuronModel.Comm.rank)
         brain.SetStorage(storage)
 
         brain.Simulate(source='script')

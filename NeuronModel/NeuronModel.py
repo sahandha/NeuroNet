@@ -152,9 +152,9 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
         for i in range(s):
             input = self._VV[-self._DelayIndx,np.arange(self._NumberOfNeurons)]
-            weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
-            #func = partial(self.GetWeight,r,r*s+i)
-            #weights = np.array(self._Pool.map(func,range(self._NumberOfNeurons)))
+            #weights = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
+            func = partial(self.GetWeight,r,r*s+i)
+            weights = np.array(self._Pool.map(func,range(self._NumberOfNeurons)))
             if self._Storage._WriteNetwork:
                 self._Storage.WriteNetworkGroup(r*s+i,weights,r)
             self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))

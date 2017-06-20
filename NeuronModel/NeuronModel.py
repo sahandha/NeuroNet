@@ -230,7 +230,6 @@ class NeuronModel():
         NeuronModel.Comm.Allgather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
         NeuronModel.Comm.Allgather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
         NeuronModel.Comm.Allgather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
-        #NeuronModel.Comm.Gather( [self._Inputp, MPI.DOUBLE], [self._Input, MPI.DOUBLE] )
         self._X = np.concatenate((self._V,self._N))
         self._dX = np.concatenate((self._dV,self._dN))
 

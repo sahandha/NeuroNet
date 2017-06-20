@@ -8,3 +8,5 @@ Data
 Report
 *.err
 *.out
+*.prof
+*.prof.*

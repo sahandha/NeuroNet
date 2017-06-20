@@ -4,6 +4,10 @@ import numpy as np
 import itertools as it
 from mpi4py import MPI
 import copy
+from multiprocessing import Pool
+from multiprocessing import cpu_count
+from functools import partial
+from functools import reduce
 
 class NeuronModel():
     Comm  = MPI.COMM_WORLD
@@ -34,6 +38,7 @@ class NeuronModel():
         self.PlaceNeurons()
         #self.ComputeDelayIndex()
         self.Initialize()
+        self._Pool = Pool(processes=4)
 
 
     def SetStorage(self,s):
@@ -89,6 +94,17 @@ class NeuronModel():
             w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
             delay = int(2*d/self._dt)
         return (w,delay)
+
+    def ComputeInput(self, n1=1, n2=2):
+        if n1==n2:
+            r = 0
+        else:
+            d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
+            w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
+            delay = int(2*d/self._dt)
+            input = self._VV[-delay,n1]
+            r = 1/self._SynapseLimit*w*self._CellType[n2]*1/(1+np.exp(-input))
+        return r
 
     def Initialize(self):
         longestdist = np.sqrt(2*80*80)
@@ -149,13 +165,16 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
 
         for i in range(s):
-            wd = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
-            weights = wd[:,0]
-            delays  = wd[:,1]
-            input = self._VV[-delays,np.arange(self._NumberOfNeurons)]
-            self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
-            if self._Storage._WriteNetwork:
-                self._Storage.WriteNetworkGroup(r*s+i,weights,r)
+            #wd = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
+            #weights = wd[:,0]
+            #delays  = wd[:,1]
+            #input = self._VV[-delays,np.arange(self._NumberOfNeurons)]
+            #self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
+            func = partial(self.ComputeInput,r*s+i)
+            mdata = self._Pool.map(func,range(self._NumberOfNeurons))
+            self._Inputp[i] = reduce(lambda x, y: x+y, mdata)
+            #if self._Storage._WriteNetwork:
+            #    self._Storage.WriteNetworkGroup(r*s+i,weights,r)
 
     def MLFlow(self, t, x):
 
@@ -236,6 +255,7 @@ class NeuronModel():
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:
             self._Storage.WriteLine()
+
 
     def __getstate__(self):
         self_dict = self.__dict__.copy()

@@ -165,16 +165,16 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
 
         for i in range(s):
-            #wd = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
-            #weights = wd[:,0]
-            #delays  = wd[:,1]
-            #input = self._VV[-delays,np.arange(self._NumberOfNeurons)]
-            #self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
-            func = partial(self.ComputeInput,r*s+i)
-            mdata = self._Pool.map(func,range(self._NumberOfNeurons))
-            self._Inputp[i] = reduce(lambda x, y: x+y, mdata)
-            #if self._Storage._WriteNetwork:
-            #    self._Storage.WriteNetworkGroup(r*s+i,weights,r)
+            wd = np.array([self.GetWeight(n,r*s+i,r) for n in range(self._NumberOfNeurons)])
+            weights = wd[:,0]
+            delays  = wd[:,1]
+            input = self._VV[-delays,np.arange(self._NumberOfNeurons)]
+            self._Inputp[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
+            #func = partial(self.ComputeInput,r*s+i)
+            #mdata = self._Pool.map(func,range(self._NumberOfNeurons))
+            #self._Inputp[i] = reduce(lambda x, y: x+y, mdata)
+            if self._Storage._WriteNetwork:
+                self._Storage.WriteNetworkGroup(r*s+i,weights,r)
 
     def MLFlow(self, t, x):
 

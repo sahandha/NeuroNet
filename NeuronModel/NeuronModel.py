@@ -26,7 +26,7 @@ class NeuronModel():
         self._SynapseCount         = np.zeros(self._NumberOfNeurons)
         self._SynapseLimit         = synapselimit
         self._SynapseStrengthLimit = synapsestrengthlimit
-        self._CellType             = np.random.choice([-1,1],size=N,p=[3/5,2/5])
+        self._CellType             = np.random.choice([-1,1],size=N,p=[1/5,4/5])
         self._NetworkDevelTime     = networkdevel
         self._Params               = params
         self.Initialize()

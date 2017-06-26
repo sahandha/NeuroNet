@@ -99,7 +99,7 @@ class Storage:
     def WriteNetworkGroup(self,n,w,r):
         str = ''
         for idx,weight in enumerate(w):
-            str += '\t\t({},{}):{},\n'.format(idx,n,weight)
+            str += '\t\t({},{}):{},\n'.format(n,idx,weight)
         with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
             f.write(str)
 

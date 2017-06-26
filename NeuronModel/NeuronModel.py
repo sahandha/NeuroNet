@@ -90,17 +90,6 @@ class NeuronModel():
             delay = int(2*d/self._dt)
         return (w,delay)
 
-    def ComputeInput(self, n1=1, n2=2):
-        if n1==n2:
-            r = 0
-        else:
-            d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
-            w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
-            delay = int(2*d/self._dt)
-            input = self._VV[-delay,n1]
-            r = 1/self._SynapseLimit*w*self._CellType[n2]*1/(1+np.exp(-input))
-        return r
-
     def Initialize(self):
         longestdist = np.sqrt(2*80*80)
         self._V    = np.random.normal(-40,1,size=self._NumberOfNeurons)
@@ -120,6 +109,7 @@ class NeuronModel():
         self.SplitData()
 
     def SplitData(self):
+        longestdist = np.sqrt(2*80*80)
         cs = NeuronModel.Comm.size
         s  = int(self._NumberOfNeurons/cs)
         r = NeuronModel.Comm.rank
@@ -133,6 +123,7 @@ class NeuronModel():
         self._dXp = np.concatenate((self._dVp, self._dNp))
         self._Ip  = copy.copy(self._I[s*r:s*(r+1)])
         self._Inputp = copy.copy(self._Input[s*r:s*(r+1)])
+        self._VVp    = np.zeros((int(2*longestdist/self._dt),s))
         self._NetworkConnectivityP = {}
 
     def SetParameters(self):
@@ -157,12 +148,18 @@ class NeuronModel():
         cs = NeuronModel.Comm.size
         s  = int(self._NumberOfNeurons/cs)
         r = NeuronModel.Comm.rank
-
         self._Inputp = np.zeros_like(self._Vp)
 
         for i in range(s):
-            input = self._VV[-self._DelaysP[r*s+i],np.arange(self._NumberOfNeurons)]
-            self._Inputp[i] = sum(1/self._SynapseLimit*self._WeightsP[r*s+i]*self._CellType*1/(1+np.exp(-input)))
+            delays = self._DelaysP[r*s+i][r*s:r*s+s]
+            weights = self._WeightsP[r*s+i][r*s:r*s+s]
+            input = self._VVp[-delays,np.arange(s)]
+            res = np.sum(1/self._SynapseLimit*weights*self._CellType[r*s:r*s+s]*1/(1+np.exp(-input)))
+            NeuronModel.Comm.Barrier()
+            total = np.zeros(1)
+            NeuronModel.Comm.Allreduce([np.sum(res), MPI.DOUBLE], total)
+            #NeuronModel.Comm.Allreduce(res, total, op=MPI.SUM)
+            self._Inputp[i] = total[0]
 
 
     def MLFlow(self, t, x):
@@ -200,7 +197,7 @@ class NeuronModel():
         self._Np = self._Xp[s:]
 
     def StoreTimeSeriesData(self, i):
-        self._VV = np.concatenate((self._VV[1:,:], self._V.reshape(1,len(self._V))))
+        self._VVp = np.concatenate((self._VVp[1:,:], self._Vp.reshape(1,len(self._Vp))))
 
     def AddNoise(self,indx):
         s  = int(self._NumberOfNeurons/NeuronModel.Comm.size)

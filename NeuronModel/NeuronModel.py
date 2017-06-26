@@ -26,7 +26,7 @@ class NeuronModel():
         self._SynapseCount         = np.zeros(self._NumberOfNeurons)
         self._SynapseLimit         = synapselimit
         self._SynapseStrengthLimit = synapsestrengthlimit
-        self._CellType             = np.random.choice([-1,1],size=N,p=[2/5,3/5])
+        self._CellType             = np.random.choice([-1,1],size=N,p=[3/5,2/5])
         self._NetworkDevelTime     = networkdevel
         self._Params               = params
         self.Initialize()
@@ -159,6 +159,7 @@ class NeuronModel():
             total = np.zeros(1)
             NeuronModel.Comm.Allreduce([np.sum(res), MPI.DOUBLE], total)
             #NeuronModel.Comm.Allreduce(res, total, op=MPI.SUM)
+            # ISSUE https://bitbucket.org/mpi4py/mpi4py/issues/43/issue-python2-python3
             self._Inputp[i] = total[0]
 
 

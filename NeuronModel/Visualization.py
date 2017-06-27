@@ -13,7 +13,7 @@ class Visualization:
         self._NumberOfNeurons = self._Brain._NumberOfNeurons
         self._Neurons = list(range(self._NumberOfNeurons))
         self._FigNum  = FigNume
-        self.ConstructNetwork()
+        #self.ConstructNetwork()
         self.SortNeurons()
 
     def ConstructNetwork(self):

@@ -151,17 +151,38 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
 
         for i in range(s):
-            delays = self._DelaysP[r*s+i][r*s:r*s+s]
-            weights = self._WeightsP[r*s+i][r*s:r*s+s]
-            input = self._VVp[-delays,np.arange(s)]
-            res = np.sum(1/self._SynapseLimit*weights*self._CellType[r*s:r*s+s]*1/(1+np.exp(-input)))
+            delaybuff  = [self._DelaysP[r*s+i][p*s:p*s+s] for p in range(cs)]
+            weightbuff = [self._DelaysP[r*s+i][p*s:p*s+s] for p in range(cs)]
+
+            NeuronModel.Comm.alltoall(delaybuff)
+            NeuronModel.Comm.alltoall(weightbuff)
+
+            res = map(self.InputMapper,zip(delaybuff,weightbuff))
+
+            NeuronModel.Comm.alltoall(res)
+
+            self._Inputp[i] = sum(res)
             NeuronModel.Comm.Barrier()
-            total = np.zeros(1)
-            NeuronModel.Comm.Allreduce([np.sum(res), MPI.DOUBLE], total)
+            #delays = self._DelaysP[r*s+i][r*s:r*s+s]
+            #weights = self._WeightsP[r*s+i][r*s:r*s+s]
+            #input = self._VVp[-delays,np.arange(s)]
+            #res = np.sum(1/self._SynapseLimit*weights*self._CellType[r*s:r*s+s]*1/(1+np.exp(-input)))
+            #NeuronModel.Comm.Barrier()
+            #total = np.zeros(1)
+            #NeuronModel.Comm.Allreduce([np.sum(res), MPI.DOUBLE], total)
             #NeuronModel.Comm.Allreduce(res, total, op=MPI.SUM)
             # ISSUE https://bitbucket.org/mpi4py/mpi4py/issues/43/issue-python2-python3
-            self._Inputp[i] = total[0]
+            #self._Inputp[i] = total[0]
 
+    def InputMapper(self,data):
+        cs = NeuronModel.Comm.size
+        s  = int(self._NumberOfNeurons/cs)
+        r = NeuronModel.Comm.rank
+
+        delays  = data[0]
+        weights = data[1]
+        input = self._VVp[-delays,np.arange(s)]
+        return np.sum(1/self._SynapseLimit*weights*self._CellType[r*s:r*s+s]*1/(1+np.exp(-input)))
 
     def MLFlow(self, t, x):
 

@@ -5,7 +5,6 @@ import itertools as it
 from mpi4py import MPI
 import copy
 
-
 class NeuronModel():
     Comm  = MPI.COMM_WORLD
     def __init__(self, N=10, t0=0, tend=100, dt=0.1, connectionscale=50, synapselimit=1000, synapsestrengthlimit=50, networkdevel=10, **params):
@@ -151,28 +150,23 @@ class NeuronModel():
         self._Inputp = np.zeros_like(self._Vp)
 
         for i in range(s):
-            delaybuff  = [self._DelaysP[r*s+i][p*s:p*s+s] for p in range(cs)]
-            weightbuff = [self._DelaysP[r*s+i][p*s:p*s+s] for p in range(cs)]
+            delay  = np.array([self._DelaysP[r*s+i][p*s:p*s+s] for p in range(cs)])
+            weight = np.array([self._WeightsP[r*s+i][p*s:p*s+s] for p in range(cs)])
 
-            NeuronModel.Comm.alltoall(delaybuff)
-            NeuronModel.Comm.alltoall(weightbuff)
+            delaybuff  = np.zeros_like(delay )
+            weightbuff = np.zeros_like(weight)
 
-            res = map(self.InputMapper,zip(delaybuff,weightbuff))
+            NeuronModel.Comm.Alltoall((delay ,MPI.DOUBLE), (delaybuff ,MPI.DOUBLE))
+            NeuronModel.Comm.Alltoall((weight,MPI.DOUBLE), (weightbuff,MPI.DOUBLE))
 
-            NeuronModel.Comm.alltoall(res)
+            resbuff = np.array(list(map(self.InputMapper,zip(delaybuff,weightbuff))))
 
-            self._Inputp[i] = sum(res)
+            res = np.zeros_like(resbuff)
+            NeuronModel.Comm.Alltoall((resbuff,MPI.DOUBLE), (res,MPI.DOUBLE))
+
+            self._Inputp[i] = np.sum(res)
             NeuronModel.Comm.Barrier()
-            #delays = self._DelaysP[r*s+i][r*s:r*s+s]
-            #weights = self._WeightsP[r*s+i][r*s:r*s+s]
-            #input = self._VVp[-delays,np.arange(s)]
-            #res = np.sum(1/self._SynapseLimit*weights*self._CellType[r*s:r*s+s]*1/(1+np.exp(-input)))
-            #NeuronModel.Comm.Barrier()
-            #total = np.zeros(1)
-            #NeuronModel.Comm.Allreduce([np.sum(res), MPI.DOUBLE], total)
-            #NeuronModel.Comm.Allreduce(res, total, op=MPI.SUM)
-            # ISSUE https://bitbucket.org/mpi4py/mpi4py/issues/43/issue-python2-python3
-            #self._Inputp[i] = total[0]
+
 
     def InputMapper(self,data):
         cs = NeuronModel.Comm.size
@@ -213,6 +207,9 @@ class NeuronModel():
         self._Np = self._Xp[s:]
 
     def UpdateEuler(self,ii):
+        cs = NeuronModel.Comm.size
+        s  = int(self._NumberOfNeurons/cs)
+        r = NeuronModel.Comm.rank
         self._Xp = self._Xp + self._dt*self.MLFlow(self._t, self._Xp);
         self._t  = self._t + self._dt
         self._Vp = self._Xp[:s]
@@ -245,17 +242,17 @@ class NeuronModel():
                 self.StoreTimeSeriesData(ii)
                 self.AddNoise(ii)
                 self.UpdateSynapses(ii)
-                self.UpdateRK(ii);
+                self.UpdateEuler(ii);
                 self.MPICOMM()
 
     def MPICOMM(self):
-        NeuronModel.Comm.Barrier()
+        #NeuronModel.Comm.Barrier()
         NeuronModel.Comm.Allgather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
-        NeuronModel.Comm.Allgather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
-        NeuronModel.Comm.Allgather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
-        NeuronModel.Comm.Allgather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
-        self._X = np.concatenate((self._V,self._N))
-        self._dX = np.concatenate((self._dV,self._dN))
+        #NeuronModel.Comm.Allgather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
+        #NeuronModel.Comm.Allgather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
+        #NeuronModel.Comm.Allgather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
+        #self._X = np.concatenate((self._V,self._N))
+        #self._dX = np.concatenate((self._dV,self._dN))
 
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:

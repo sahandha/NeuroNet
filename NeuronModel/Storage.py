@@ -57,7 +57,7 @@ class Storage:
     def ConstructLine(self,fileID):
         l = "{:.3f}".format(self._Brain._t) + ', '
         for i in range(fileID*self._NeuronsPerFile,min((fileID+1)*self._NeuronsPerFile,self._Brain._NumberOfNeurons)):
-                l += "{:.3f}".format(self._Brain._X[i]) + ', '
+                l += "{:.3f}".format(self._Brain._V[i]) + ', '
         l.rstrip(', ')
         l += '\n'
         return l

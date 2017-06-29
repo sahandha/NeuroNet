@@ -1,6 +1,31 @@
 import sys, getopt
 from NeuronModel import *
 from Storage import *
+import getpass
+import os
+import datetime as dt
+import glob
+
+def getOutputFolder(postfix):
+    user = getpass.getuser()
+    date = dt.datetime.today().strftime("%m-%d-%Y")
+    ver  = 0
+    if user == "sahand":
+        dataFolder = "/Users/sahand/Research/NeuroNet/Data"
+    elif user == "hariria2":
+        dataFolder = "/u/eot/hariria2/scratch/Parallel"
+    else:
+        print("Input data directory: ")
+        dataFolder = input()
+    if not os.path.exists(dataFolder):
+        os.makedirs(dataFolder)
+    if not os.path.exists(dataFolder+"/"+date):
+        os.makedirs(dataFolder+"/"+date)
+    while len(glob.glob(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"*"))>0:
+        ver += 1
+    os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix)
+    os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix+"/"+"Network")
+    return dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix
 
 
 def main(argv):
@@ -8,7 +33,6 @@ def main(argv):
     # Defaults
     fromFile     = False
     fileName     = '/Users/sahand/Research/NeuroNet/Data/Parameters.json'
-    outputFolder = '/Users/sahand/Research/NeuroNet/Data'
 
     connectionscale = 40
     N               = 100
@@ -60,6 +84,15 @@ def main(argv):
             NetworkDevel = int(arg)
         elif opt in ("-P"):
             NeuronPerFile = int(arg)
+
+
+    if NeuronModel.Comm.rank == 0:
+        outputFolder = getOutputFolder('N'+str(N)+'_L'+str(synapselimit)+'_S'+str(connectionscale)+'_D'+str(NetworkDevel))
+    else:
+        outputFolder=''
+
+    outputFolder = NeuronModel.Comm.bcast(outputFolder, root=0)
+
 
     if fromFile:
         storage = Storage.FromFile(fileName)

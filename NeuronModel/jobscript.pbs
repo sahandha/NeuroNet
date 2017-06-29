@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -l nodes=60:ppn=32:xe
+#PBS -l nodes=15:ppn=32:xe
 #PBS -l walltime=04:00:00
 #PBS -N NeuroNet
 #PBS -M sahandha@gmail.com
@@ -12,4 +12,4 @@ cd $PBS_O_WORKDIR
 module load bwpy
 module load bwpy-mpi
 
-aprun -n 1920 -N 32 python3 -m cProfile -o /u/eot/hariria2/scratch/Parallel/Sim0_06272017/program.prof.bw ./run.py -N 96000 -S 5 -L 500 -D 5 -P 200 -O /u/eot/hariria2/scratch/Parallel/Sim0_06272017
+aprun -n 480 -N 32 python3 ./run.py -N 96000 -L 500 -S 5 -D 5 -P 200

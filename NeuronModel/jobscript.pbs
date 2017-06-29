@@ -1,11 +1,11 @@
 #!/bin/bash
 
 date=`/bin/date +%Y-%m-%d`
-mkdir -p ($PBS_O_WORKDIR)/outputs/($date)
-mkdir -p ($PBS_O_WORKDIR)/erros/($date)
+mkdir -p `$PBS_O_WORKDIR`/outputs/`$date`
+mkdir -p `$PBS_O_WORKDIR`/erros/`$date`
 
-outputFolder=($PBS_O_WORKDIR)/outputs/($date)
-errorFolder=($PBS_O_WORKDIR)/erros/($date)
+outputFolder=`$PBS_O_WORKDIR`/outputs/`$date`
+errorFolder=`$PBS_O_WORKDIR`/erros/`$date`
 
 #PBS -l nodes=2:ppn=32:xe
 #PBS -l walltime=04:00:00

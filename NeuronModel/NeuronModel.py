@@ -25,7 +25,7 @@ class NeuronModel():
         self._SynapseCount         = np.zeros(self._NumberOfNeurons)
         self._SynapseLimit         = synapselimit
         self._SynapseStrengthLimit = synapsestrengthlimit
-        self._CellType             = np.random.choice([-1,1],size=N,p=[1/5,4/5])
+        self._CellType             = np.random.choice([-1,1],size=N,p=[2/5,3/5])
         self._NetworkDevelTime     = networkdevel
         self._Params               = params
         self.Initialize()
@@ -220,7 +220,7 @@ class NeuronModel():
 
     def AddNoise(self,indx):
         s  = int(self._NumberOfNeurons/NeuronModel.Comm.size)
-        self._X[self._NumberOfNeurons:] += np.random.normal(self._NoiseMean, self._NoiseSTD, self._NumberOfNeurons)
+        #self._X[self._NumberOfNeurons:] += np.random.normal(self._NoiseMean, self._NoiseSTD, self._NumberOfNeurons)
         self._Np += np.random.normal(self._NoiseMean, self._NoiseSTD, s)
 
     def Simulate(self, source='Jupyter'):

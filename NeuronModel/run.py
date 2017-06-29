@@ -39,9 +39,10 @@ def main(argv):
     synapselimit    = 20
     NeuronPerFile   = 10
     NetworkDevel    = 50
+    JobID           = 0
 
     try:
-        opts, args = getopt.getopt(argv,"hF:O:N:S:P:D:L:")
+        opts, args = getopt.getopt(argv,"hF:O:N:S:P:D:L:J:")
     except getopt.GetoptError:
         print(
         '''python3 run.py -options \n
@@ -53,6 +54,7 @@ def main(argv):
         -S:   Connection Scale
         -P:   Number of neurons per file.
         -D:   Network Development period.
+        -J:   Job ID assigned by BW
         ''')
         sys.exit(2)
     for opt, arg in opts:
@@ -67,6 +69,7 @@ def main(argv):
             -S:   Connection Scale
             -D:   Network development period
             -P:   Number of neurons per file.
+            -J:   Job ID assigned by BW
             ''')
             sys.exit()
         elif opt in ("-F"):
@@ -84,7 +87,8 @@ def main(argv):
             NetworkDevel = int(arg)
         elif opt in ("-P"):
             NeuronPerFile = int(arg)
-
+        elif opt in ("-J"):
+            JobID = int(arg)
 
     if NeuronModel.Comm.rank == 0:
         outputFolder = getOutputFolder('N'+str(N)+'_L'+str(synapselimit)+'_S'+str(connectionscale)+'_D'+str(NetworkDevel))
@@ -107,7 +111,7 @@ def main(argv):
                         C=C,gL=gL,gCa=gCa,gK=gK,VL=VL,VCa=VCa,VK=VK,V1=V1,V2=V2,V3=V3,V4=V4,phi=phi,
                         I_v=0.1,C_v=C_v,gL_v=gL_v,gCa_v=gCa_v,gK_v=gK_v,VL_v=VL_v,VCa_v=VCa_v,VK_v=VK_v,V1_v=V1_v,V2_v=V2_v,V3_v=V3_v,V4_v=V4_v,phi_v=phi_v)
 
-        storage =  Storage(outputFolder, NeuronPerFile, brain=brain)
+        storage =  Storage(outputFolder, NeuronPerFile, brain=brain,JobID=JobID)
         brain.SetStorage(storage)
         if NeuronModel.Comm.rank==0:
             storage.WriteParameters()

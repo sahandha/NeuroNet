@@ -2,7 +2,8 @@ import json
 import os
 import numpy as np
 class Storage:
-    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, ParameterFileName=None):
+    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, ParameterFileName=None,JobID=0):
+        self._JobID          = JobID
         self._Brain          = brain
         self._DataFolder     = DataFolder
         if not os.path.exists(self._DataFolder):
@@ -70,6 +71,7 @@ class Storage:
 
     def WriteParameters(self):
         with open(self._DataFolder+"/Parameters.json", 'w') as f:
+            self._Parameters["JobID"]           = self._JobID
             self._Parameters["tend"]            = self._Brain._tend
             self._Parameters["dt"]              = self._Brain._dt
             self._Parameters["ConnectionScale"] = self._Brain._ConnectionScale

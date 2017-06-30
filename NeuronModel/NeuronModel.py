@@ -123,24 +123,23 @@ class NeuronModel():
         self._dNp = copy.copy(self._dN[s*r:s*(r+1)])
         self._Xp  = np.concatenate((self._Vp, self._Np))
         self._dXp = np.concatenate((self._dVp, self._dNp))
-        self._Ip  = copy.copy(self._I[s*r:s*(r+1)])
         self._CellTypep  = copy.copy(self._CellType[s*r:s*(r+1)])
         self._Inputp = copy.copy(self._Input[s*r:s*(r+1)])
         self._VVp    = np.zeros((int(2*longestdist/self._dt),s))
         self._NetworkConnectivityP = {}
+        self._NeuronsP = np.arange(self._NeuronsPerCore)
 
     def CleanData(self):
+        del self._X
         del self._N
         del self._dV
         del self._dN
-        #del self._I
         del self._CellType
         del self._Input
 
     def SetParameters(self):
         params = self._Params
-        cs = NeuronModel.Comm.size
-        s  = int(self._NumberOfNeurons/cs)
+        s  = self._NeuronsPerCore
         self._I   = np.random.normal(params["I"  ],params["I_v"  ],size=s)
         self._C   = np.random.normal(params["C"  ],params["C_v"  ],size=s)
         self._gCa = np.random.normal(params["gCa"],params["gCa_v"],size=s)
@@ -159,31 +158,35 @@ class NeuronModel():
         cs = self._CommSize
         s  = self._NeuronsPerCore
         r = NeuronModel.Comm.rank
+
         self._Inputp = np.zeros_like(self._Vp)
 
         for i in range(s):
-            delay  = np.array([self._DelaysP[r*s+i][p*s:p*s+s] for p in range(cs)])
+            delay  = np.array([self._DelaysP [r*s+i][p*s:p*s+s] for p in range(cs)])
             weight = np.array([self._WeightsP[r*s+i][p*s:p*s+s] for p in range(cs)])
+            NeuronModel.Comm.Barrier()
 
-            delaybuff  = np.zeros_like(delay )
-            weightbuff = np.zeros_like(weight)
+            delaybuff  = np.empty_like(delay)
+            weightbuff = np.empty_like(weight)
 
-            NeuronModel.Comm.Alltoall((delay ,MPI.DOUBLE), (delaybuff ,MPI.DOUBLE))
-            NeuronModel.Comm.Alltoall((weight,MPI.DOUBLE), (weightbuff,MPI.DOUBLE))
+            NeuronModel.Comm.Alltoall((delay ,MPI.INT), (delaybuff ,MPI.INT))
+            NeuronModel.Comm.Alltoall((weight,MPI.INT), (weightbuff,MPI.INT))
+
+            NeuronModel.Comm.Barrier()
 
             resbuff = np.array(list(map(self.InputMapper,zip(delaybuff,weightbuff))))
+            res     = np.empty_like(resbuff)
 
-            res = np.zeros_like(resbuff)
             NeuronModel.Comm.Alltoall((resbuff,MPI.DOUBLE), (res,MPI.DOUBLE))
 
             self._Inputp[i] = np.sum(res)
-            NeuronModel.Comm.Barrier()
 
 
     def InputMapper(self,data):
         delays  = data[0]
         weights = data[1]
-        input = self._VVp[-delays,np.arange(self._NeuronsPerCore)]
+
+        input = self._VVp[-delays,self._NeuronsP]
         return np.sum(1/self._SynapseLimit*weights*self._CellTypep*1/(1+np.exp(-input)))
 
     def MLFlow(self, t, x):
@@ -201,9 +204,9 @@ class NeuronModel():
         return np.concatenate((self._dVp, self._dNp))
 
     def UpdateRK(self,ii):
-        cs = NeuronModel.Comm.size
-        s  = int(self._NumberOfNeurons/cs)
-        r = NeuronModel.Comm.rank
+        cs = self._CommSize
+        s  = self._NeuronsPerCore
+        r  = NeuronModel.Comm.rank
         k1 = self.MLFlow(self._t, self._Xp)
         k2 = self.MLFlow(self._t+self._dt/2, self._Xp+k1*self._dt/2)
         k3 = self.MLFlow(self._t+self._dt/2, self._Xp+k2*self._dt/2)
@@ -215,9 +218,9 @@ class NeuronModel():
         self._Np = self._Xp[s:]
 
     def UpdateEuler(self,ii):
-        cs = NeuronModel.Comm.size
-        s  = int(self._NumberOfNeurons/cs)
-        r = NeuronModel.Comm.rank
+        cs = self._CommSize
+        s  = self._NeuronsPerCore
+        r  = NeuronModel.Comm.rank
         self._Xp = self._Xp + self._dt*self.MLFlow(self._t, self._Xp);
         self._t  = self._t + self._dt
         self._Vp = self._Xp[:s]
@@ -227,9 +230,7 @@ class NeuronModel():
         self._VVp = np.concatenate((self._VVp[1:,:], self._Vp.reshape(1,len(self._Vp))))
 
     def AddNoise(self,indx):
-        s  = int(self._NumberOfNeurons/NeuronModel.Comm.size)
-        #self._X[self._NumberOfNeurons:] += np.random.normal(self._NoiseMean, self._NoiseSTD, self._NumberOfNeurons)
-        self._Np += np.random.normal(self._NoiseMean, self._NoiseSTD, s)
+        self._Np += np.random.normal(self._NoiseMean, self._NoiseSTD, self._NeuronsPerCore)
 
     def Simulate(self, source='Jupyter'):
         self._dXp = np.array(self.MLFlow(self._t, self._Xp))
@@ -254,13 +255,7 @@ class NeuronModel():
                 self.MPICOMM()
 
     def MPICOMM(self):
-        #NeuronModel.Comm.Barrier()
         NeuronModel.Comm.Allgather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
-        #NeuronModel.Comm.Allgather( [self._Np, MPI.DOUBLE], [self._N, MPI.DOUBLE] )
-        #NeuronModel.Comm.Allgather( [self._dVp, MPI.DOUBLE], [self._dV, MPI.DOUBLE] )
-        #NeuronModel.Comm.Allgather( [self._dNp, MPI.DOUBLE], [self._dN, MPI.DOUBLE] )
-        #self._X = np.concatenate((self._V,self._N))
-        #self._dX = np.concatenate((self._dV,self._dN))
 
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:

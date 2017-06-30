@@ -28,6 +28,8 @@ class NeuronModel():
         self._CellType             = np.random.choice([-1,1],size=N,p=[2/5,3/5])
         self._NetworkDevelTime     = networkdevel
         self._Params               = params
+        self._CommSize             = NeuronModel.Comm.size
+        self._NeuronsPerCore       = int(self._NumberOfNeurons/self._CommSize)
         self.Initialize()
         self.PlaceNeurons()
 
@@ -121,6 +123,7 @@ class NeuronModel():
         self._Xp  = np.concatenate((self._Vp, self._Np))
         self._dXp = np.concatenate((self._dVp, self._dNp))
         self._Ip  = copy.copy(self._I[s*r:s*(r+1)])
+        self._CellTypep  = copy.copy(self._CellType[s*r:s*(r+1)])
         self._Inputp = copy.copy(self._Input[s*r:s*(r+1)])
         self._VVp    = np.zeros((int(2*longestdist/self._dt),s))
         self._NetworkConnectivityP = {}
@@ -144,8 +147,8 @@ class NeuronModel():
         self._V4  = np.random.normal(params["V4" ],params["V4_v" ],size=s)
 
     def UpdateSynapses(self,indx):
-        cs = NeuronModel.Comm.size
-        s  = int(self._NumberOfNeurons/cs)
+        cs = self._CommSize
+        s  = self._NeuronsPerCore
         r = NeuronModel.Comm.rank
         self._Inputp = np.zeros_like(self._Vp)
 
@@ -160,7 +163,7 @@ class NeuronModel():
             NeuronModel.Comm.Alltoall((weight,MPI.DOUBLE), (weightbuff,MPI.DOUBLE))
 
             resbuff = np.array(list(map(self.InputMapper,zip(delaybuff,weightbuff))))
-
+            #resbuff = np.array([self.InputMapper(d) for d in zip(delaybuff,weightbuff)])
             res = np.zeros_like(resbuff)
             NeuronModel.Comm.Alltoall((resbuff,MPI.DOUBLE), (res,MPI.DOUBLE))
 
@@ -169,14 +172,10 @@ class NeuronModel():
 
 
     def InputMapper(self,data):
-        cs = NeuronModel.Comm.size
-        s  = int(self._NumberOfNeurons/cs)
-        r = NeuronModel.Comm.rank
-
         delays  = data[0]
         weights = data[1]
-        input = self._VVp[-delays,np.arange(s)]
-        return np.sum(1/self._SynapseLimit*weights*self._CellType[r*s:r*s+s]*1/(1+np.exp(-input)))
+        input = self._VVp[-delays,np.arange(self._NeuronsPerCore)]
+        return np.sum(1/self._SynapseLimit*weights*self._CellTypep*1/(1+np.exp(-input)))
 
     def MLFlow(self, t, x):
 

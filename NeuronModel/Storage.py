@@ -81,7 +81,7 @@ class Storage:
             self._Parameters["DataFolder"]      = self._DataFolder
             self._Parameters["NumberOfNeurons"] = self._Brain._NumberOfNeurons
             self._Parameters["SynapseLimit"]    = self._Brain._SynapseLimit
-            json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '))
+            json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '),sort_keys=True)
 
     def WritePositions(self):
         data = {}

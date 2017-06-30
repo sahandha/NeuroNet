@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -l nodes=2:ppn=32:xe
-#PBS -l walltime=04:00:00
+#PBS -l walltime=01:00:00
 #PBS -N NeuroNet
 #PBS -M sahandha@gmail.com
 #PBS -e $PBS_JOBID.err
@@ -13,4 +13,4 @@ cd $PBS_O_WORKDIR
 module load bwpy
 module load bwpy-mpi
 
-aprun -n 64 -N 32 python3 ./run.py -N 640 -L 500 -S 5 -D 5 -P 200 -J $PBS_JOBID
+aprun -n 64 -N 32 python3 ./run.py -N 640 -L 500 -S 5 -D 5 -P 200 -T 10 -J $PBS_JOBID

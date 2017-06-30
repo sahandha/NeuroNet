@@ -108,11 +108,12 @@ class NeuronModel():
         self._DelaysP = {}
         self.SetParameters()
         self.SplitData()
+        self.CleanData()
 
     def SplitData(self):
         longestdist = np.sqrt(2*80*80)
-        cs = NeuronModel.Comm.size
-        s  = int(self._NumberOfNeurons/cs)
+        cs = self._CommSize
+        s  = self._NeuronsPerCore
         r = NeuronModel.Comm.rank
         self._V   = self._X[:self._NumberOfNeurons]
         self._N   = self._X[self._NumberOfNeurons:]
@@ -127,6 +128,14 @@ class NeuronModel():
         self._Inputp = copy.copy(self._Input[s*r:s*(r+1)])
         self._VVp    = np.zeros((int(2*longestdist/self._dt),s))
         self._NetworkConnectivityP = {}
+
+    def CleanData(self):
+        del self._N
+        del self._dV
+        del self._dN
+        #del self._I
+        del self._CellType
+        del self._Input
 
     def SetParameters(self):
         params = self._Params
@@ -163,7 +172,7 @@ class NeuronModel():
             NeuronModel.Comm.Alltoall((weight,MPI.DOUBLE), (weightbuff,MPI.DOUBLE))
 
             resbuff = np.array(list(map(self.InputMapper,zip(delaybuff,weightbuff))))
-            #resbuff = np.array([self.InputMapper(d) for d in zip(delaybuff,weightbuff)])
+
             res = np.zeros_like(resbuff)
             NeuronModel.Comm.Alltoall((resbuff,MPI.DOUBLE), (res,MPI.DOUBLE))
 

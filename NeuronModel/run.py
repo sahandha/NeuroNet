@@ -5,6 +5,8 @@ import getpass
 import os
 import datetime as dt
 import glob
+from time import time
+
 
 def getOutputFolder(postfix):
     user = getpass.getuser()
@@ -29,7 +31,7 @@ def getOutputFolder(postfix):
 
 
 def main(argv):
-
+    t1 = time()
     # Defaults
     fromFile     = False
     fileName     = '/Users/sahand/Research/NeuroNet/Data/Parameters.json'
@@ -109,6 +111,7 @@ def main(argv):
         brain = NeuronModel(N=storage._NumberOfNeurons, connectionscale=storage._ConnectionScale, synapselimit=storage._SynapseLimit, synapsestrengthlimit=storage._SynapseLimit, networkdevel=NetworkDevel, **storage._Parameters)
 
     else:
+
         C,gL,gCa,gK,VL,VCa,VK,V1,V2,V3,V4,phi=20,2.0,4.4,8,-60,120,-84,-1.2,18.0,2.0,30.0,0.04
         C_v,gL_v,gCa_v,gK_v,VL_v,VCa_v,VK_v,V1_v,V2_v,V3_v,V4_v,phi_v=1,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01
 
@@ -126,7 +129,12 @@ def main(argv):
         brain.DevelopNetwork()
 
         brain.Simulate(source='script')
-
+    t2 = time()
+    uptime = t2-t1
+    if NeuronModel.Comm.rank == 0:
+        with open(outputFolder+"/SimulationTime","a") as f: #in write mode
+            f.write(str(uptime))
 
 if __name__=='__main__':
+
     main(sys.argv[1:])

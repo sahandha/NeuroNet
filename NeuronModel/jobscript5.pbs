@@ -13,4 +13,4 @@ cd $PBS_O_WORKDIR
 module load bwpy
 module load bwpy-mpi
 
-aprun -n 384 -N 32 python3 -m cProfile -o ./ProfileData/$PBS_JOBID.prof ./run.py -N 11520 -L 1000 -S 5 -D 5 -P 200 -T 1 -J $PBS_JOBID
+aprun -n 384 -N 32 python3 -m cProfile -o ./ProfileData/$PBS_JOBID.prof ./run.py -N 23040 -L 1000 -S 5 -D 5 -P 200 -T 1 -J $PBS_JOBID

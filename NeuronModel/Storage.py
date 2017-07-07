@@ -2,7 +2,7 @@ import json
 import os
 import numpy as np
 class Storage:
-    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, ParameterFileName=None,JobID=0):
+    def __init__(self, DataFolder, NeuronsPerFile, brain=None, NumberOfFiles=None, NumberOfNeurons=None, ParameterFileName=None,JobID='0'):
         self._JobID          = JobID
         self._Brain          = brain
         self._DataFolder     = DataFolder

@@ -95,7 +95,7 @@ def main(argv):
         elif opt in ("-P"):
             NeuronPerFile = int(arg)
         elif opt in ("-J"):
-            JobID = int(arg)
+            JobID = arg
         elif opt in ("-T"):
             Tend  = int(arg)
 
@@ -136,7 +136,7 @@ def main(argv):
     uptime = t2-t1
     if NeuronModel.Comm.rank == 0:
         with open(reportFolder+"/SimulationTime","w") as f: #in write mode
-            f.write(str(JobID))
+            f.write(JobID)
             f.write("\n")
             f.write(str(uptime))
 

@@ -25,9 +25,11 @@ def getOutputFolder(postfix):
         os.makedirs(dataFolder+"/"+date)
     while len(glob.glob(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"*"))>0:
         ver += 1
+
     os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix)
     os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix+"/"+"Network")
-    return dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix
+    os.makedirs("./Sim"+str(ver)+"_"+postfix)
+    return (dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix, "./Sim"+str(ver)+"_"+postfix)
 
 
 def main(argv):
@@ -98,12 +100,13 @@ def main(argv):
             Tend  = int(arg)
 
     if NeuronModel.Comm.rank == 0:
-        outputFolder = getOutputFolder('N'+str(N)+'_L'+str(synapselimit)+'_S'+str(connectionscale)+'_D'+str(NetworkDevel)+'_T'+str(Tend))
+        (outputFolder, reportFolder) = getOutputFolder('N'+str(N)+'_L'+str(synapselimit)+'_S'+str(connectionscale)+'_D'+str(NetworkDevel)+'_T'+str(Tend))
     else:
         outputFolder=''
+        reportFolder=''
 
     outputFolder = NeuronModel.Comm.bcast(outputFolder, root=0)
-
+    reportFolder = NeuronModel.Comm.bcast(reportFolder, root=0)
 
     if fromFile:
         storage = Storage.FromFile(fileName)
@@ -132,8 +135,11 @@ def main(argv):
     t2 = time()
     uptime = t2-t1
     if NeuronModel.Comm.rank == 0:
-        with open(outputFolder+"/SimulationTime","a") as f: #in write mode
+        with open(reportFolder+"/SimulationTime","w") as f: #in write mode
+            f.write(str(JobID))
+            f.write("\n")
             f.write(str(uptime))
+
 
 if __name__=='__main__':
 

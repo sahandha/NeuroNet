@@ -101,8 +101,8 @@ class Storage:
     def WriteNetworkGroup(self,n,w,r):
         str = ''
         for idx,weight in enumerate(w):
-            str += '\t\t({},{}):{},\n'.format(n,idx,weight)
-        with open(self._DataFolder+"/Network/Network{}.json".format(r),"a") as f: #in write mode
+            str += '{},\t{},\t{}\n'.format(n,idx,weight)
+        with open(self._DataFolder+"/Network/Network{}.csv".format(r),"a") as f: #in write mode
             f.write(str)
 
     def CloseNetworkFile(self, r):

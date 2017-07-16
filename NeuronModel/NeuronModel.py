@@ -79,7 +79,7 @@ class NeuronModel():
             self._DelaysP[r*s+i]  = wd[:,1]
             self._Storage.WriteNetworkGroup(r*s+i,wd[:,0],r)
 
-        self._Storage.CloseNetworkFile(r)
+        #self._Storage.CloseNetworkFile(r)
 
     def GetWeight(self, n1=1, n2=2):
         if n1==n2:
@@ -180,7 +180,6 @@ class NeuronModel():
             NeuronModel.Comm.Alltoall((resbuff,MPI.DOUBLE), (res,MPI.DOUBLE))
 
             self._Inputp[i] = np.sum(res)
-
 
     def InputMapper(self,data):
         delays  = data[0]

@@ -84,10 +84,11 @@ class Storage:
             json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '),sort_keys=True)
 
     def WritePositions(self):
-        data = {}
-        data["Coordinate"] = {i:list(n) for i,n in enumerate(self._Brain._NeuronPosition)}
-        with open(self._DataFolder+"/Positions.json", 'w') as f:
-            json.dump(data, f, indent=4, separators=(',', ': '))
+        str = ""
+        for i,n in enumerate(self._Brain._NeuronPosition):
+            str += '{},\t{},\t{}\n'.format(i,n[0],n[1])
+        with open(self._DataFolder+"/Positions.csv", 'w') as f: #in write mode
+            f.write(str)
 
     def WriteNetwork(self,r):
         self._WriteNetwork = True

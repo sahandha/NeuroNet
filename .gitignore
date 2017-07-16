@@ -5,8 +5,11 @@
 __*__
 Documentation
 Data
+Sim*
 Report
 *.err
 *.out
 *.prof
 *.prof.*
+*.png
+rasterize.py

@@ -73,11 +73,11 @@ class NeuronModel():
         s  = int(self._NumberOfNeurons/cs)
         r = NeuronModel.Comm.rank
 
-        for i in range(s):
-            wd = np.array([self.GetWeight(n,r*s+i) for n in range(self._NumberOfNeurons)])
-            self._WeightsP[r*s+i] = wd[:,0]
-            self._DelaysP[r*s+i]  = wd[:,1]
-            self._Storage.WriteNetworkGroup(r*s+i,wd[:,0],r)
+        for i in range(r*s,r*s+s):
+            wd = np.array([self.GetWeight(n,i) for n in range(self._NumberOfNeurons)])
+            self._WeightsP[i] = wd[:,0]
+            self._DelaysP[i]  = wd[:,1]
+            self._Storage.WriteNetworkGroup(i,wd[:,0],r)
 
         #self._Storage.CloseNetworkFile(r)
 

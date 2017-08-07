@@ -5,7 +5,173 @@ import networkx as nx
 import numpy as np
 import warnings
 import igraph as ig
-#import cairo
+import os
+import json
+import glob
+import itertools as it
+import matplotlib.cm as cm
+
+
+def FixPathsParallel(datafolder="/Users/sahand/Research/NeuroNet/Data/Sim5_0626201"):
+    folders = os.listdir(datafolder)
+    visfolder = datafolder+"/"+"Vis"
+    if not os.path.exists(visfolder):
+        os.makedirs(visfolder)
+    with open(datafolder+"/Parameters.json", 'r') as file:
+        data = json.load(file)
+        data["DataFolder"]=datafolder
+    with open(datafolder+"/Parameters.json", 'w') as file:
+        json.dump(data, file, indent=4, separators=(',', ': '))
+
+
+class DictTable(dict):
+    # Overridden dict class which takes a dict in the form {'a': 2, 'b': 3},
+    # and renders an HTML Table in IPython Notebook.
+    def _repr_html_(self):
+        html = ['<table align="left" width=100%>']
+        html.append('<tr>')
+        html.append('<th align="left">Paramater Name</th>')
+        html.append('<th align="left">Paramater Value</th>')
+        html.append("<tr>")
+        for key, value in iter(self.items()):
+            html.append("<tr>")
+            html.append("<td>{0}</td>".format(str(key)))
+            html.append("<td>{0}</td>".format(str(value)))
+            html.append("</tr>")
+        html.append("</table>")
+        return ''.join(html)
+
+
+
+def ReadFileIndividualNeuron(filename, column=0):
+    filedata = []
+    with open(filename, 'r') as f:
+        for line in f:
+            ld = []
+            dataline = line.rstrip(', \n').lstrip(' ').split(',')
+            filedata.append(np.array([dataline[0],dataline[column+1]])) # +1 is here becuase the first column is always time.
+    return np.array(filedata)
+
+
+def VisTimeSeries(datafolder, neurons=[0],output='Save'):
+
+    with open(datafolder+"/Parameters.json") as data_file:
+            metadata = json.load(data_file)
+    p = metadata["NeuronsPerFile"]
+
+    filenumbers = []
+    datacolumns = []
+    for n in neurons:
+        filenumbers.append(int(n/p))
+        datacolumns.append(n%p)
+
+    datafiles = glob.glob(datafolder+"/*.dat")
+
+    files = [datafiles[n] for n in filenumbers]
+    fig = plt.figure(figsize=(25,2*len(files)))
+
+    for i, file in enumerate(files):
+        ax = fig.add_subplot(len(files),1,i+1)
+        data = ReadFileIndividualNeuron(file,column=datacolumns[i])
+        p=plt.plot(data[:,0], data[:,1], rasterized=True)
+        plt.ylim([-90,90])
+        plt.setp(p,'Color', [0.7,0.3,0.3], 'linewidth', 3)
+        plt.ylabel('{}'.format(neurons[i]))
+        plt.grid(True)
+    plt.xlabel('Time')
+    if output=='Show':
+        plt.show()
+    else:
+        plt.savefig(datafolder +'/Vis/IndividualTimeSeries.png', bbox_inches='tight')
+
+
+def SortNeurons():
+    d = []
+    neurontoindex = {}
+    coordinates = np.genfromtxt(SimPath+"/Positions.csv", delimiter=',')
+    for nxy in coordinates:
+        d.append((nxy[0],nxy[1]**2+nxy[2]**2))
+    sl = sorted(d, key=lambda x: x[1])
+    SortedNeurons = [int(x[0]) for x in sl]
+    for i,n in enumerate(SortedNeurons):
+        neurontoindex[n] = i
+
+    return neurontoindex
+
+
+def VisAdjacencyMatrix(datafolder, sort=False, numberoffiles=2, output='Save',figsize=(25,25)):
+    
+    with open(datafolder+"/Parameters.json") as data_file:
+            metadata = json.load(data_file)
+    
+    networkfiles = glob.glob(datafolder+"/Network/*.csv")
+    
+    if numberoffiles=='All':
+        files = networkfiles
+    else:
+        files = networkfiles[0:numberoffiles]
+    
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(1,1,1)
+    
+    if sort:
+        SortedNeruons = SortNeurons()
+    
+    for i,file in enumerate(files):
+        data = np.genfromtxt(file, delimiter=',')
+        if sort:
+            xdata = np.array([SortedNeruons[d] for d in data[:,0]])
+            ydata = np.array([SortedNeruons[d] for d in data[:,1]])
+        else:
+            xdata = data[:,0]
+            ydata = data[:,1]
+        weights = data[:,2]
+        plt.scatter(xdata, ydata, c=weights, s=5, cmap='Blues', rasterized=True)
+    if sort:
+        ax.set_xticklabels(SortedNeruons.keys())
+        ax.set_yticklabels(SortedNeruons.keys())
+    plt.colorbar()
+    if output=='Show':
+        plt.show()    
+    else:
+        plt.savefig(datafolder +'/Vis/AdjacencyMatrix.png', bbox_inches='tight')
+
+
+def ReadFile(filename, filenumber=0, perfile=200, threashold=40):
+    filedata = []
+    with open(filename, 'r') as f:
+        for line in f:
+            ld = []
+            dataline = line.rstrip(', \n').lstrip(' ').split(',')
+            for i,data in enumerate(dataline[1:]):
+                if data == 'none':
+                    data = 0
+                if float(data) > threashold:
+                    ld.append(np.array([float(dataline[0]), perfile*filenumber + int(i)]))
+
+            if len(ld)>0:
+                filedata.append(ld)
+    return filedata
+
+
+def VisTimeFreq(datafolder, cuttoff=50, output = 'Save',figsize=(25,10)):
+
+    with open(datafolder+"/Parameters.json") as data_file:
+            metadata = json.load(data_file)
+
+    datafiles = glob.glob(datafolder+"/*.dat")
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(1,1,1)
+    for i,file in enumerate(datafiles):
+        f = ReadFile(file,filenumber=i,perfile=metadata["NeuronsPerFile"],threashold=cuttoff)
+        if len(f)>0:
+            data = np.array([item for sublist in f for item in sublist])
+            ax.scatter(data[:,0], data[:,1], c=[0.7]*3, s=2, rasterized=True)
+    if output=='Show':
+        plt.show()
+    else:
+        plt.savefig(datafolder +'/Vis/TimeFreq.png', bbox_inches='tight')
+
 
 class Visualization:
     def __init__(self,brain, FigNume=1):

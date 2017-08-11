@@ -38,7 +38,7 @@ Neurons are self excited (due to noise). For some network configurations, we hav
 
 ## Vectorized Simulation
 
-Simulating the system using Agent-based modeling approach is computationally expensive. So for large networks we use a vectorized form of the simulation. The code is maintained in <./NeuronModel>. Please see some example notebooks therein.
+Simulating the system using Agent-based modeling approach is computationally expensive. So for large networks we use a vectorized form of the simulation. The code is maintained in [./NeuronModel](./NeuronModel). Please see some example notebooks therein.
 
 Some preliminary results:
 

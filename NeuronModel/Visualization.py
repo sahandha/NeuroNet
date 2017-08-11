@@ -23,7 +23,6 @@ def FixPathsParallel(datafolder="/Users/sahand/Research/NeuroNet/Data/Sim5_06262
     with open(datafolder+"/Parameters.json", 'w') as file:
         json.dump(data, file, indent=4, separators=(',', ': '))
 
-
 class DictTable(dict):
     # Overridden dict class which takes a dict in the form {'a': 2, 'b': 3},
     # and renders an HTML Table in IPython Notebook.
@@ -41,8 +40,6 @@ class DictTable(dict):
         html.append("</table>")
         return ''.join(html)
 
-
-
 def ReadFileIndividualNeuron(filename, column=0):
     filedata = []
     with open(filename, 'r') as f:
@@ -51,7 +48,6 @@ def ReadFileIndividualNeuron(filename, column=0):
             dataline = line.rstrip(', \n').lstrip(' ').split(',')
             filedata.append(np.array([dataline[0],dataline[column+1]])) # +1 is here becuase the first column is always time.
     return np.array(filedata)
-
 
 def VisTimeSeries(datafolder, neurons=[0],output='Save'):
 
@@ -84,11 +80,10 @@ def VisTimeSeries(datafolder, neurons=[0],output='Save'):
     else:
         plt.savefig(datafolder +'/Vis/IndividualTimeSeries.png', bbox_inches='tight')
 
-
-def SortNeurons():
+def SortNeurons(datafolder):
     d = []
     neurontoindex = {}
-    coordinates = np.genfromtxt(SimPath+"/Positions.csv", delimiter=',')
+    coordinates = np.genfromtxt(datafolder+"/Positions.csv", delimiter=',')
     for nxy in coordinates:
         d.append((nxy[0],nxy[1]**2+nxy[2]**2))
     sl = sorted(d, key=lambda x: x[1])
@@ -98,25 +93,24 @@ def SortNeurons():
 
     return neurontoindex
 
-
 def VisAdjacencyMatrix(datafolder, sort=False, numberoffiles=2, output='Save',figsize=(25,25)):
-    
+
     with open(datafolder+"/Parameters.json") as data_file:
             metadata = json.load(data_file)
-    
+
     networkfiles = glob.glob(datafolder+"/Network/*.csv")
-    
+
     if numberoffiles=='All':
         files = networkfiles
     else:
         files = networkfiles[0:numberoffiles]
-    
+
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(1,1,1)
-    
+
     if sort:
-        SortedNeruons = SortNeurons()
-    
+        SortedNeruons = SortNeurons(datafolder)
+
     for i,file in enumerate(files):
         data = np.genfromtxt(file, delimiter=',')
         if sort:
@@ -132,10 +126,9 @@ def VisAdjacencyMatrix(datafolder, sort=False, numberoffiles=2, output='Save',fi
         ax.set_yticklabels(SortedNeruons.keys())
     plt.colorbar()
     if output=='Show':
-        plt.show()    
+        plt.show()
     else:
         plt.savefig(datafolder +'/Vis/AdjacencyMatrix.png', bbox_inches='tight')
-
 
 def ReadFile(filename, filenumber=0, perfile=200, threashold=40):
     filedata = []

@@ -1,30 +1,30 @@
 # Individual based model of network of neurons.
 
-<!-- TOC depthFrom:2 depthTo:4 withLinks:1 updateOnSave:1 orderedList:0 -->
+<!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Overview](#overview)
-		- [Serial code](#serial-code)
-		- [Running Serially on Bluewaters](#running-serially-on-bluewaters)
-		- [Running Parallel on Bluewaters](#running-parallel-on-bluewaters)
+	- [Serial code](#serial-code)
+	- [Running Serially on Bluewaters](#running-serially-on-bluewaters)
+	- [Running Parallel on Bluewaters](#running-parallel-on-bluewaters)
 - [Agent-based model](#agent-based-model)
 - [Vectorized Simulation](#vectorized-simulation)
-		- [Sample ensemble firing patterns](#sample-ensemble-firing-patterns)
-		- [Sample network connectivity matrix](#sample-network-connectivity-matrix)
+	- [Sample ensemble firing patterns](#sample-ensemble-firing-patterns)
+	- [Sample network connectivity matrix](#sample-network-connectivity-matrix)
 
 <!-- /TOC -->
 
 ## Overview
 We build a network of neurons that can form synapses over time. When a single neuron is excited, through the connections formed, all the other neurons are excited as well. See the file [demo.ipynb](https://github.com/sahandha/NeuroNet/blob/master/examples/demo.ipynb) in the examples folder for a sample simulation.
 
-#### Serial code
+### Serial code
 
 The master branch of this repository implements the simulation in serial for running on your personal computer.
 
-#### Running Serially on Bluewaters
+### Running Serially on Bluewaters
 
 For a serial code that can be run on Bluewaters see, the branch title [BW](https://github.com/sahandha/NeuroNet/tree/BW).
 
-#### Running Parallel on Bluewaters
+### Running Parallel on Bluewaters
 
 For parallel code for running on Bluewaters, see the code [BW_MPI](https://github.com/sahandha/NeuroNet/tree/BW_MPI).
 
@@ -42,13 +42,13 @@ Simulating the system using Agent-based modeling approach is computationally exp
 
 Some preliminary results:
 
-#### Sample ensemble firing patterns
+### Sample ensemble firing patterns
 
 This is a network that is fully developed. The neurons are self-activated due to noise. We can see that almost immediately the neurons synchronize.
 
 ![Adjacency matrix](./Images/TimeFrequency.png)
 
-#### Sample network connectivity matrix
+### Sample network connectivity matrix
 
 The two axes represent neurons. The neurons are sorted by their distance to the origin. The strong correlation observed indicates that the neurons that are closer to one another are more likely to form connections than those that are further apart.
 

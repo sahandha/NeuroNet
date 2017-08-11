@@ -8,3 +8,6 @@ Data
 Report
 *.err
 *.out
+NeuronModel/Sim*
+NeuronModel/ProfileData/*
+.prof

@@ -4,11 +4,13 @@ We build a network of neurons that can form synapses over time. When a single ne
 
 Neurons are self excited (due to noise). For some network configurations, we have synchronization, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy2.ipynb). When the network is too weak, no synchronization happens, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy3.ipynb).
 
+The master branch of this repository implements the simulation in serial for running on your personal computer. For a serial code that can be run on Bluewaters see, the branch title [BW](https://github.com/sahandha/NeuroNet/tree/BW). For parallel code for running on Bluewaters, see the code [BW_MPI](https://github.com/sahandha/NeuroNet/tree/BW_MPI).
+
+Note that all parallel code as well as the serial code to run on Bluewaters are implemented only as vectorized simulations.
+
 ## Agent-based model
 
 In the initial phase of the development, we started out with Agent-based modeling. This is a good first start as it allows for flexibility and ease of use in specifying model parameters. But it is computationally expensive, and hence, not suitable for large simulations.
-
---------------------------------------------------------------------------------
 
 ## Vectorized Simulation
 

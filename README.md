@@ -4,7 +4,7 @@
 
 Neurons are self excited (due to noise). For some network configurations, we have synchronization, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy2.ipynb). When the network is too weak, no synchronization happens, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy3.ipynb).
 
-![TimeFrequency](./Data/BW3/N1000L300S40D70/Vis)
+![TimeFrequency](./Images/TimeFrequency.png)
 
 --------------------------------------------------------------------------------
 

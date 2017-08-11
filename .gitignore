@@ -11,5 +11,4 @@ Report
 *.out
 *.prof
 *.prof.*
-*.png
 rasterize.py

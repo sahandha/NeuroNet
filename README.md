@@ -33,7 +33,7 @@ For parallel code for running on Bluewaters, see the code [BW_MPI](https://githu
 
 ## Agent-based model
 
-In the initial phase of the development, we started out with Agent-based modeling. This is a good first start as it allows for flexibility and ease of use in specifying model parameters. But it is computationally expensive, and hence, not suitable for large simulations. The code is maintained in [./Neuronet](./Neuronet)
+In the initial phase of the development, we started out with Agent-based modeling. This is a good first start as it allows for flexibility and ease of use in specifying model parameters. But it is computationally expensive, and hence, not suitable for large simulations. The code is maintained in [./NeuroNet](./NeuroNet)
 
 Neurons are self excited (due to noise). For some network configurations, we have synchronization, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy2.ipynb). When the network is too weak, no synchronization happens, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy3.ipynb).
 

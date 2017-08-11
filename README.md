@@ -1,12 +1,14 @@
 # Individual based model of network of neurons.
 
-## Agent-based model
+We build a network of neurons that can form synapses over time. When a single neuron is excited, through the connections formed, all the other neurons are excited as well. See the file [demo.ipynb](https://github.com/sahandha/NeuroNet/blob/master/examples/demo.ipynb) in the examples folder for a sample simulation.
 
 Neurons are self excited (due to noise). For some network configurations, we have synchronization, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy2.ipynb). When the network is too weak, no synchronization happens, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy3.ipynb).
 
---------------------------------------------------------------------------------
+## Agent-based model
 
-We build a network of neurons that can form synapses over time. When a single neuron is excited, through the connections formed, all the other neurons are excited as well. See the file [demo.ipynb](https://github.com/sahandha/NeuroNet/blob/master/examples/demo.ipynb) in the examples folder for a sample simulation.
+In the initial phase of the development, we started out with Agent-based modeling. This is a good first start as it allows for flexibility and ease of use in specifying model parameters. But it is computationally expensive, and hence, not suitable for large simulations.
+
+--------------------------------------------------------------------------------
 
 ## Vectorized Simulation
 
@@ -19,3 +21,5 @@ Some preliminary results:
 ![Adjacency matrix](./Images/TimeFrequency.png)
 
 ### Sample network connectivity matrix
+
+![Adjacency matrix](./Images/AdjacencyMatrix.png)

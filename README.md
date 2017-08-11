@@ -16,6 +16,6 @@ Some preliminary results:
 
 ### Sample ensemble firing patterns
 
-![Adjacency matrix](./Adjacency.png) ![Connectivity](./Connectivity.png) ![DegreeDistribution.png](./DegreeDistribution.png.png)
+![Adjacency matrix](./Images/Adjacency.png) ![Connectivity](./Images/Connectivity.png) ![DegreeDistribution.png](./Images/DegreeDistribution.png.png)
 
 ### Sample network connectivity matrix

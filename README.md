@@ -11,8 +11,8 @@ Here we run long term simulations. Some of the preliminary results are as follow
 
 #### Ensemble Firing Patterns
 
-![individual spikes](./Images/TimeFreq.png)
+![ensemble firing](./Images/TimeFreq.png)
 
 #### Adjacency Matrix
 
-![individual spikes](./Images/AdjacencyMatrix.png)
+![adjacency matrix](./Images/AdjacencyMatrix.png)

@@ -23,6 +23,7 @@ The master branch of this repository implements the simulation in serial for run
 ### Running Serially on Bluewaters
 
 For a serial code that can be run on Bluewaters see, the branch title [BW](https://github.com/sahandha/NeuroNet/tree/BW).
+**Note** all simulations relevant to Bluewaters are implemented only as vectorized simulations only. Essentially the Agent-based modeling portion of this repository is for demo purposes only.
 
 ### Running Parallel on Bluewaters
 
@@ -32,7 +33,7 @@ For parallel code for running on Bluewaters, see the code [BW_MPI](https://githu
 
 ## Agent-based model
 
-In the initial phase of the development, we started out with Agent-based modeling. This is a good first start as it allows for flexibility and ease of use in specifying model parameters. But it is computationally expensive, and hence, not suitable for large simulations.
+In the initial phase of the development, we started out with Agent-based modeling. This is a good first start as it allows for flexibility and ease of use in specifying model parameters. But it is computationally expensive, and hence, not suitable for large simulations. The code is maintained in [./Neuronet](./Neuronet)
 
 Neurons are self excited (due to noise). For some network configurations, we have synchronization, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy2.ipynb). When the network is too weak, no synchronization happens, see [HERE](https://github.com/sahandha/NeuroNet/blob/master/NeuronModel/Demo-Copy3.ipynb).
 

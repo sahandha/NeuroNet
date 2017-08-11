@@ -1,5 +1,14 @@
 # Individual based model of network of neurons.
 
+<!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Overview](#overview)
+- [Agent-based model](#agent-based-model)
+- [Vectorized Simulation](#vectorized-simulation)
+
+<!-- /TOC -->
+
+## Overview
 We build a network of neurons that can form synapses over time. When a single neuron is excited, through the connections formed, all the other neurons are excited as well. See the file [demo.ipynb](https://github.com/sahandha/NeuroNet/blob/master/examples/demo.ipynb) in the examples folder for a sample simulation.
 
 #### Serial code
@@ -28,13 +37,13 @@ Simulating the system using Agent-based modeling approach is computationally exp
 
 Some preliminary results:
 
-### Sample ensemble firing patterns
+#### Sample ensemble firing patterns
 
 This is a network that is fully developed. The neurons are self-activated due to noise. We can see that almost immediately the neurons synchronize.
 
 ![Adjacency matrix](./Images/TimeFrequency.png)
 
-### Sample network connectivity matrix
+#### Sample network connectivity matrix
 
 The two axes represent neurons. The neurons are sorted by their distance to the origin. The strong correlation observed indicates that the neurons that are closer to one another are more likely to form connections than those that are further apart.
 

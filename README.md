@@ -1,10 +1,15 @@
 # Individual based model of network of neurons.
 
-<!-- TOC depthFrom:2 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
+<!-- TOC depthFrom:2 depthTo:4 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Overview](#overview)
+		- [Serial code](#serial-code)
+		- [Running Serially on Bluewaters](#running-serially-on-bluewaters)
+		- [Running Parallel on Bluewaters](#running-parallel-on-bluewaters)
 - [Agent-based model](#agent-based-model)
 - [Vectorized Simulation](#vectorized-simulation)
+		- [Sample ensemble firing patterns](#sample-ensemble-firing-patterns)
+		- [Sample network connectivity matrix](#sample-network-connectivity-matrix)
 
 <!-- /TOC -->
 

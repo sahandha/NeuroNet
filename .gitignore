@@ -1,6 +1,5 @@
 .pyc
 .ipynb_checkpoints
-*.ipynb
 *.html
 __*__
 Documentation

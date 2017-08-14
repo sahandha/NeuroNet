@@ -13,9 +13,9 @@ def getOutputFolder(postfix):
     date = dt.datetime.today().strftime("%m-%d-%Y")
     ver  = 0
     if user == "sahand":
-        dataFolder = "/Users/sahand/Research/NeuroNet/Data"
+        dataFolder = "/Users/sahand/Research/NeuroNet/Data/Serial"
     elif user == "hariria2":
-        dataFolder = "/u/eot/hariria2/scratch/Parallel"
+        dataFolder = "/u/eot/hariria2/scratch/Serial"
     else:
         print("Input data directory: ")
         dataFolder = input()
@@ -28,7 +28,7 @@ def getOutputFolder(postfix):
 
     os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix)
     os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix+"/"+"Network")
-    os.makedirs("./Sim"+str(ver)+"_"+postfix)
+    #os.makedirs("./Sim"+str(ver)+"_"+postfix)
     return (dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix, "./Sim"+str(ver)+"_"+postfix)
 
 

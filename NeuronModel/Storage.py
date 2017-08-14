@@ -23,7 +23,7 @@ class Storage:
         NumberOfFiles   = data["NumberOfFiles"]
         NumberOfNeurons = data["NumberOfNeurons"]
         ConnectionScale = data["ConnectionScale"]
-        NetworkDevel    = data["NetworkDevel"]
+        NetworkDevelTime= data["NetworkDevel"]
 
         return cls(DataFolder, NeuronsPerFile=NeuronsPerFile, NumberOfFiles=NumberOfFiles, NumberOfNeurons=NumberOfNeurons, ParameterFileName=name)
 
@@ -70,13 +70,20 @@ class Storage:
             self._Parameters["tend"]            = self._Brain._tend
             self._Parameters["dt"]              = self._Brain._dt
             self._Parameters["ConnectionScale"] = self._Brain._ConnectionScale
-            self._Parameters["NetworkDevel"]    = self._Brain._NetworkDevel
+            self._Parameters["NetworkDevelTime"]= self._Brain._NetworkDevelTime
             self._Parameters["NeuronsPerFile"]  = self._NeuronsPerFile
             self._Parameters["NumberOfFiles"]   = self._NumberOfFiles
             self._Parameters["DataFolder"]      = self._DataFolder
             self._Parameters["NumberOfNeurons"] = self._Brain._NumberOfNeurons
             self._Parameters["SynapseLimit"]    = self._Brain._SynapseLimit
             json.dump(self._Brain._Params, f, indent=4, separators=(',', ': '))
+
+    def WritePositions(self):
+        str = ""
+        for i,n in enumerate(self._Brain._NeuronPosition):
+            str += '{},\t{},\t{}\n'.format(i,n[0],n[1])
+        with open(self._DataFolder+"/Positions.csv", 'w') as f: #in write mode
+            f.write(str)
 
     def WriteNetwork(self):
         data = {}
@@ -85,6 +92,13 @@ class Storage:
 
         with open(self._DataFolder+"/Network.json", 'w') as f:
             json.dump(data, f, indent=4, separators=(',', ': '))
+
+    def WriteNetworkGroup(self,n,w):
+        str = ''
+        for idx,weight in enumerate(w):
+            str += '{},\t{},\t{}\n'.format(n,idx,weight)
+        with open(self._DataFolder+"/Network/Network.csv","a") as f: #in write mode
+            f.write(str)
 
     def ReadFile(self, filename):
         filedata = []

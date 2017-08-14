@@ -4,11 +4,12 @@ import itertools as it
 
 class NeuronModel():
 
-    def __init__(self, N=10, t0=0, tend=100, dt=0.1, connectionscale=50, synapselimit=1000, synapsestrengthlimit=50, **params):
+    def __init__(self, N=10, t0=0, tend=100, dt=0.1, connectionscale=50, synapselimit=1000, synapsestrengthlimit=50, networkdeveltime=10, **params):
         self._dt              = dt
         self._tstart          = t0
         self._tend            = tend
         self._t               = t0
+        self._NetworkDevelTime= networkdeveltime
         self._Time            = np.arange(self._tstart,self._tend,self._dt)
         self._X               = np.array([])
         self._dX              = np.array([])
@@ -75,7 +76,13 @@ class NeuronModel():
     def Distance2(self, a, b):
         return sum((a - b)**2)
 
-    def DevelopNetwork(self,n,source='Jupyter'):
+    def DevelopNetwork(self,source='Jupyter'):
+        for i in range(self._NumberOfNeurons):
+            wd = np.array([self.GetWeight(n,i) for n in range(self._NumberOfNeurons)])
+            self._Weights[i] = wd[:,0]
+            self._Delays[i]  = wd[:,1]
+            self._Storage.WriteNetworkGroup(i,wd[:,0])
+        '''
         x = 0;
         self._NetworkDevel = n
         if source=='Jupyter':
@@ -100,6 +107,17 @@ class NeuronModel():
                         if self._SynapseCount[key[0]] < self._SynapseLimit and self._SynapseCount[key[1]] < self._SynapseLimit:
                             self._SynapseCount[key[0]]+=1
                             self._SynapseCount[key[1]]+=1
+        '''
+
+    def GetWeight(self, n1=1, n2=2):
+        if n1==n2:
+            w = 0
+            delay = 1
+        else:
+            d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
+            w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
+            delay = int(2*d/self._dt)
+        return (w,delay)
 
     def Initialize(self):
         self._X    = np.concatenate((np.random.normal(-40,1,size=self._NumberOfNeurons), np.zeros(self._NumberOfNeurons)))
@@ -110,6 +128,8 @@ class NeuronModel():
         self._dVV  = np.zeros((len(self._Time),self._NumberOfNeurons))
         self._NN   = np.zeros_like(self._VV)
         self._dNN  = np.zeros_like(self._dVV)
+        self._Weights = {}
+        self._Delays = {}
         self.SetParameters()
         self._DelayIndx = np.zeros(self._NumberOfNeurons,dtype=np.int8)
         self._Input = np.zeros(self._NumberOfNeurons)

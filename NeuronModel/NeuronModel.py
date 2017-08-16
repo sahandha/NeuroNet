@@ -76,7 +76,8 @@ class NeuronModel():
     def Distance2(self, a, b):
         return sum((a - b)**2)
 
-    def DevelopNetwork(self,source='Jupyter'):
+    def DevelopNetwork(self,n):
+
         for i in range(self._NumberOfNeurons):
             wd = np.array([self.GetWeight(n,i) for n in range(self._NumberOfNeurons)])
             self._Weights[i] = wd[:,0]
@@ -85,28 +86,15 @@ class NeuronModel():
         '''
         x = 0;
         self._NetworkDevel = n
-        if source=='Jupyter':
-            for t in range(n):
-                for key in self._SynapseWeight.keys():
+
+        for t in range(n):
+            for key in self._SynapseWeight.keys():
+                if np.random.random()<self._SynapseProbability[key]:
+                    if self._SynapseWeight[key] < self._SynapseStrengthLimit:
+                        self._SynapseWeight[key]+=1 #self._SynapseLimit/n
                     if self._SynapseCount[key[0]] < self._SynapseLimit and self._SynapseCount[key[1]] < self._SynapseLimit:
-                        if np.random.random()<self._SynapseProbability[key]:
-                            self._SynapseQ[key]        = True
-                            self._SynapseCount[key[0]]+=1
-                            self._SynapseCount[key[1]]+=1
-
-                    if self._SynapseQ[key] and self._SynapseWeight[key] < self._SynapseStrengthLimit:
-                        self._SynapseWeight[key]+=1
-
-
-        else:
-            for t in range(n): #trange(n):
-                for key in self._SynapseWeight.keys():
-                    if np.random.random()<self._SynapseProbability[key]:
-                        if self._SynapseWeight[key] < self._SynapseStrengthLimit:
-                            self._SynapseWeight[key]+=1 #self._SynapseLimit/n
-                        if self._SynapseCount[key[0]] < self._SynapseLimit and self._SynapseCount[key[1]] < self._SynapseLimit:
-                            self._SynapseCount[key[0]]+=1
-                            self._SynapseCount[key[1]]+=1
+                        self._SynapseCount[key[0]]+=1
+                        self._SynapseCount[key[1]]+=1
         '''
 
     def GetWeight(self, n1=1, n2=2):
@@ -117,6 +105,7 @@ class NeuronModel():
             d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
             w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
             delay = int(2*d/self._dt)
+        self._SynapseWeight[(n1,n2)]=w
         return (w,delay)
 
     def Initialize(self):

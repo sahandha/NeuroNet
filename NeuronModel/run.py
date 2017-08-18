@@ -38,7 +38,7 @@ def main(argv):
     # Defaults
     fromFile     = False
     fileName     = '/Users/sahand/Research/NeuroNet/Data/Parameters.json'
-    outputFolder = '/Users/sahand/Research/NeuroNet/Data'
+    outputFolder = 'default'
 
     connectionscale = 40
     N               = 50
@@ -100,8 +100,8 @@ def main(argv):
             JobID = arg
         elif opt in ("-T"):
             Tend  = int(arg)
-
-    (outputFolder, reportFolder) = getOutputFolder('N'+str(N)+'_L'+str(synapselimit)+'_S'+str(connectionscale)+'_D'+str(NetworkDevel)+'_T'+str(Tend))
+    if outputFolder == 'default':
+        (outputFolder, reportFolder) = getOutputFolder('N'+str(N)+'_L'+str(synapselimit)+'_S'+str(connectionscale)+'_D'+str(NetworkDevel)+'_T'+str(Tend))
 
     if fromFile:
         storage = Storage.FromFile(fileName)

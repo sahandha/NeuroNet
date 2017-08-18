@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-#PBS -l nodes=32:ppn=32:xe
-#PBS -l walltime=04:00:00
+#PBS -l nodes=1:ppn=32:xe
+#PBS -l walltime=10:00:00
 #PBS -N NeuroNet
 #PBS -M sahandha@gmail.com
 #PBS -e $PBS_JOBID.err
@@ -13,7 +13,7 @@ cd $PBS_O_WORKDIR
 module load bwpy
 
 
-aprun -n 1024 -N 1 -d 32 xargs -d '\n' -I cmd -P 32 /bin/bash -c 'cmd'  <<EOF
+aprun -n 1 -N 1 -d 32 xargs -d '\n' -I cmd -P 32 /bin/bash -c 'cmd'  <<EOF
 ./script 1
 ./script 2
 ./script 3

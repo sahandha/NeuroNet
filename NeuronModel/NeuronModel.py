@@ -254,7 +254,7 @@ class NeuronModel():
                 self.MPICOMM()
 
     def MPICOMM(self):
-        NeuronModel.Comm.Allgather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
+        NeuronModel.Comm.Gather( [self._Vp, MPI.DOUBLE], [self._V, MPI.DOUBLE] )
 
     def WriteData(self):
         if NeuronModel.Comm.rank == 0:

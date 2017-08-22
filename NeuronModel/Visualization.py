@@ -157,6 +157,7 @@ def VisTimeFreq(datafolder, cuttoff=50, output = 'Save',figsize=(25,10)):
     ax = fig.add_subplot(1,1,1)
     for i,file in enumerate(datafiles):
         f = ReadFile(file,filenumber=i,perfile=metadata["NeuronsPerFile"],threashold=cuttoff)
+    
         if len(f)>0:
             data = np.array([item for sublist in f for item in sublist])
             ax.scatter(data[:,0], data[:,1], c=[0.7]*3, s=2, rasterized=True)

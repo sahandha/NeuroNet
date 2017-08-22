@@ -28,7 +28,7 @@ def getOutputFolder(postfix):
 
     os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix)
     os.makedirs(dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix+"/"+"Network")
-    os.makedirs("./Sim"+str(ver)+"_"+postfix)
+    #os.makedirs("./Sim"+str(ver)+"_"+postfix)
     return (dataFolder+"/"+date+"/"+"Sim"+str(ver)+"_"+postfix, "./Sim"+str(ver)+"_"+postfix)
 
 

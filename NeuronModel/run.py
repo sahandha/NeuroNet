@@ -142,5 +142,6 @@ def main(argv):
 
 
 if __name__=='__main__':
-
+    t1 = time()
     main(sys.argv[1:])
+    print(time()-t1)

@@ -15,7 +15,7 @@ class NeuronModel():
         self._dX              = np.array([])
         self._NumberOfNeurons = N
         self._NoiseMean       = 0
-        self._NoiseSTD        = 0.03
+        self._NoiseSTD        = 0.02
         self._ConnectionScale = connectionscale
         self._SynapseCount    = np.zeros(self._NumberOfNeurons)
         self._SynapseLimit    = synapselimit
@@ -103,7 +103,10 @@ class NeuronModel():
             delay = 1
         else:
             d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
-            w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
+            #netdevel = max(np.random.normal(self._NetworkDevelTime,self._NetworkDevelTime/10),1)
+            #conscale = max(np.random.normal(self._ConnectionScale,self._ConnectionScale/10),1)
+            #w = min(netdevel*np.exp(-d/conscale), self._SynapseLimit)
+            w = min(self._NetworkDevelTime*np.random.exponential(self._ConnectionScale/d),self._SynapseLimit)
             delay = int(2*d/self._dt)
         self._SynapseWeight[(n1,n2)]=w
         return (w,delay)
@@ -146,7 +149,7 @@ class NeuronModel():
         for i in range(self._NumberOfNeurons):
             input = self._VV[EffectiveIndx,np.arange(self._NumberOfNeurons)]
             weights = np.array([self._SynapseWeight[(n,i)] for n in range(self._NumberOfNeurons)])
-            self._Input[i] = sum(1/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
+            self._Input[i] = sum(0.001/self._SynapseLimit*weights*self._CellType*1/(1+np.exp(-input)))
         self._Input[EffectiveIndx<0] = 0
 
     def MLFlow(self, t, x):

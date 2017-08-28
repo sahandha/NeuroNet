@@ -11,3 +11,4 @@ Report
 *.prof
 *.prof.*
 rasterize.py
+*.bw.*

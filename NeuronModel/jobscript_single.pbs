@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+#PBS -l nodes=1:ppn=32:xe
+#PBS -l walltime=10:00:00
+#PBS -N NeuroNet
+#PBS -M sahandha@gmail.com
+#PBS -e $PBS_JOBID.err
+#PBS -o $PBS_JOBID.out
+#PBS -l flags=commlocal:commtolerant
+
+cd $PBS_O_WORKDIR
+module load bwpy
+
+
+aprun -n 1 -N 1 python3 run.py -N 1000 -L 300 -S 5 -D 10 -P 100 -T 60000

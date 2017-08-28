@@ -87,7 +87,7 @@ class NeuronModel():
             delay = 1
         else:
             d = np.sqrt(self.Distance2(self._NeuronPosition[n1], self._NeuronPosition[n2]))
-            w = min(int(self._NetworkDevelTime*np.exp(-d/self._ConnectionScale)), self._SynapseLimit)
+            w = min(int(self._NetworkDevelTime*np.exp(-d/np.random.normal(self._ConnectionScale,self._ConnectionScale/10))), np.random.normal(self._SynapseLimit,self._SynapseLimit/10))
             delay = int(2*d/self._dt)
         return (w,delay)
 

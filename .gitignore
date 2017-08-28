@@ -10,3 +10,4 @@ Report
 NeuronModel/Sim*
 NeuronModel/ProfileData/*
 .prof
+*.bw.*

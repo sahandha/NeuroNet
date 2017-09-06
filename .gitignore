@@ -9,5 +9,6 @@ Report
 *.out
 NeuronModel/Sim*
 NeuronModel/ProfileData/*
+Literature/*
 .prof
 *.bw.*

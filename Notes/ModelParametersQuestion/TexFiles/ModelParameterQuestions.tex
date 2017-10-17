@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{color,soul}
+\usepackage{graphics} 
+\usepackage{epsfig} 
+\usepackage{graphicx}  
+\usepackage{epstopdf}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{paralist}
+\usepackage{subcaption}
+\usepackage{color,soul}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{verbatim}
+\usepackage{multirow} 
+\usepackage{listings}
+\usepackage[margin=1.25in]{geometry}
+\usepackage{wrapfig}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{paralist}
+\hypersetup{urlcolor=blue, citecolor=red}
+
+
+
+\begin{document}
+	
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE University of Illinois at Urbana-Champaign \par}
+	\vspace{4cm}
+	\vspace{3cm}
+	{\huge\bfseries NeuroNet: Linking Model Parameters to Experimental Quantities\par}
+	\vspace{8cm}
+
+	{\itshape Graduate Assistant:\par}
+	{\Large Sahand Hariri\par}
+
+	\vfill
+	\vfill
+	
+	% Bottom of the page
+	{\large \today\par}
+\end{titlepage}
+
+\section{Neuron Types}
+
+\begin{itemize}
+	\item Excitatory (glutamatergic)
+		\begin{itemize}
+			\item \textbf{p2/3} Pyramidal neurons in L2/3
+			\item \textbf{ss4(L4)} Spiny stellate neurons in L4 that project to L4
+			\item \textbf{SS4(L2/3)} Spiny stellate neurons in L4 that project to L2/3
+			\item \textbf{p4} Pyramidal neurons in L4
+			\item \textbf{p5(L2/3)} Pyramidal neurons in L5 that project to L2/3
+			\item \textbf{p5(L5/6)} Pyramidal neurons in L5 that project to L5/6
+			\item \textbf{p6(L4)} Pyramidal neurons in L6 that project to L4
+			\item \textbf{p6(L5/6)} Pyramidal neurons in L6 that project to L5/6
+		\end{itemize}
+	\item Inhibitory (GABAergic)
+		\begin{itemize}
+			\item \textbf{b} Basket interneuron, all layers
+			\item \textbf{nb} Non-basket interneuron, all layers
+		\end{itemize}
+\end{itemize}
+
+\section{Types of Synapses}
+	\begin{itemize}
+		\item Local excitatory
+		\item Local inhibitory
+		\item Global cortical
+		\item Cortico-thalamic
+		\item Thalamo-cortical
+		\item Sensory input
+		\item Brainstem Modulation
+		\item Gap junction
+	\end{itemize}
+
+\section{Individual Neuron Dynamics}
+
+
+\begin{align}
+C\dot{v} &= k(v-v_r)(v-v_t) - u + I \\
+\dot{u} &= a\left\{ b(v-v_r) - u\right\}
+\end{align}
+
+\begin{itemize}
+	\item $C$ - Membrane Capacitance 
+	\item $v$ - Membrane potential (in mV)
+	\item $v_r$ - Resting potential 
+	\item $v_t$ - instantaneous threshold
+	\item $u$ - Recovery variable (The different of all inward and outward voltage-gated currents)
+	\item $I$ - Dendritic and synaptic current in (pA)
+	\[I(t) = -I_{dendr} - I_{syn}\]
+\end{itemize}
+
+\section{Short-term Synaptic Plasticity}
+ 
+\begin{align}
+\dot{x} = (1-x)/\tau_x \hspace{5 mm} \text{If presynaptic spike, then } x \leftarrow px.
+\end{align}
+
+\begin{itemize}
+	\item $x$ - Scaler factor for synapse strength
+	\item $\tau_x$ - Time constant with which $x$ recovers back to 1.
+	\item $p$ - The parameter p ? 1 decreases x and results in short-termsynaptic depression, whereas p?1 results in short-term synaptic facilitation.
+\end{itemize}
+
+\section{Long-term change in Synaptic Weight}
+
+\section{Axonal Conductance Delay}
+Following are for corticocortical connections:
+\begin{itemize}
+	\item Myelinated fibers: 1 m/s
+	\item Non-myelinated fibers: 0.1 m/s
+\end{itemize}
+
+
+\newpage
+
+\bibliographystyle{plain}
+\bibliography{../BibFiles/bib}
+
+\end{document}
